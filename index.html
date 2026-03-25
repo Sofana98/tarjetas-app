@@ -76,6 +76,17 @@ body { background: #F5F4F0; font-family: -apple-system, BlinkMacSystemFont, 'Seg
 .tarjeta-val.red { color: #DC2626; }
 .tarjeta-val.sofi { color: #C9406A; }
 .tarjeta-val.guille { color: #2563EB; }
+.mes-card { background: #fff; border: 1px solid #E8E4DC; border-radius: 14px; padding: 14px 16px; margin-bottom: 10px; }
+.mes-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.mes-titulo { font-size: 15px; font-weight: 700; color: #1A1916; }
+.mes-total { font-size: 15px; font-weight: 700; color: #DC2626; }
+.mes-row { display: flex; justify-content: space-between; font-size: 13px; padding: 3px 0; border-bottom: 0.5px solid #F0EDE6; }
+.mes-row:last-child { border-bottom: none; }
+.mes-label { color: #888; }
+.mes-val { font-weight: 600; }
+.mes-val.sofi { color: #C9406A; }
+.mes-val.guille { color: #2563EB; }
+.seccion-titulo { font-size: 11px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.06em; margin: 16px 0 10px; }
 .toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%); background: #1A1916; color: #fff; padding: 12px 22px; border-radius: 10px; font-size: 14px; font-weight: 600; opacity: 0; transition: opacity 0.2s; pointer-events: none; z-index: 999; white-space: nowrap; max-width: 88vw; }
 .toast.show { opacity: 1; }
 </style>
@@ -112,7 +123,7 @@ body { background: #F5F4F0; font-family: -apple-system, BlinkMacSystemFont, 'Seg
           </select>
         </div>
         <div class="field">
-          <label>Fecha</label>
+          <label>Fecha primera cuota</label>
           <input type="date" id="fecha" />
         </div>
         <div class="field">
@@ -120,18 +131,23 @@ body { background: #F5F4F0; font-family: -apple-system, BlinkMacSystemFont, 'Seg
           <input type="text" id="detalle" placeholder="Ej: Netflix, ropa, supermercado..." autocomplete="off" />
         </div>
         <div class="field">
-          <label>Importe total ($)</label>
+          <label>Importe por cuota ($)</label>
           <input type="number" id="importe" placeholder="0" inputmode="decimal" min="0" />
         </div>
         <div class="field">
-          <label>Cuotas</label>
+          <label>Cuotas restantes</label>
           <select id="cuotas">
             <option value="1">1 cuota (contado)</option>
             <option value="2">2 cuotas</option>
             <option value="3">3 cuotas</option>
             <option value="4">4 cuotas</option>
+            <option value="5">5 cuotas</option>
             <option value="6">6 cuotas</option>
+            <option value="7">7 cuotas</option>
+            <option value="8">8 cuotas</option>
             <option value="9">9 cuotas</option>
+            <option value="10">10 cuotas</option>
+            <option value="11">11 cuotas</option>
             <option value="12">12 cuotas</option>
             <option value="18">18 cuotas</option>
             <option value="24">24 cuotas</option>
@@ -145,7 +161,7 @@ body { background: #F5F4F0; font-family: -apple-system, BlinkMacSystemFont, 'Seg
           </div>
         </div>
         <div class="field" id="porc-field" style="display:none">
-          <label>¿Cuánto paga cada uno?</label>
+          <label>¿Cuánto paga cada uno por cuota?</label>
           <div class="porc-row">
             <span class="porc-label" style="color:#C9406A;">Sofi $</span>
             <input type="number" id="porc-sofi" placeholder="0" inputmode="decimal" min="0" />
@@ -164,7 +180,6 @@ body { background: #F5F4F0; font-family: -apple-system, BlinkMacSystemFont, 'Seg
       <div class="card" id="hlist"><div class="lmsg">Cargando...</div></div>
     </div>
     <div id="tab-resumen" class="section">
-      <div class="month-sel"><select id="rmes"></select></div>
       <div id="rcontent"><div class="lmsg">Cargando...</div></div>
     </div>
   </div>
@@ -237,30 +252,15 @@ function post(body,cb){
 
 document.getElementById('porc-sofi').addEventListener('input',function(){
   var imp=parseFloat(document.getElementById('importe').value)||0;
-  var cuotas=parseInt(document.getElementById('cuotas').value)||1;
-  var impCuota=imp/cuotas;
   var vs=parseFloat(this.value)||0;
-  if(vs>impCuota)vs=impCuota;
-  document.getElementById('porc-guille').value=Math.max(0,impCuota-vs).toFixed(0);
+  if(vs>imp)vs=imp;
+  document.getElementById('porc-guille').value=Math.max(0,imp-vs).toFixed(0);
 });
-
 document.getElementById('importe').addEventListener('input',function(){
-  var imp=parseFloat(this.value)||0;
-  var cuotas=parseInt(document.getElementById('cuotas').value)||1;
-  var impCuota=imp/cuotas;
   if(state.comp==='Si'){
+    var imp=parseFloat(this.value)||0;
     var vs=parseFloat(document.getElementById('porc-sofi').value)||0;
-    document.getElementById('porc-guille').value=Math.max(0,impCuota-vs).toFixed(0);
-  }
-});
-
-document.getElementById('cuotas').addEventListener('change',function(){
-  var imp=parseFloat(document.getElementById('importe').value)||0;
-  var cuotas=parseInt(this.value)||1;
-  var impCuota=imp/cuotas;
-  if(state.comp==='Si'){
-    document.getElementById('porc-sofi').value=Math.round(impCuota/2);
-    document.getElementById('porc-guille').value=Math.round(impCuota/2);
+    document.getElementById('porc-guille').value=Math.max(0,imp-vs).toFixed(0);
   }
 });
 
@@ -274,10 +274,8 @@ function handleToggle(btn){
     document.getElementById('porc-field').style.display=val==='Si'?'':'none';
     if(val==='Si'){
       var imp=parseFloat(document.getElementById('importe').value)||0;
-      var cuotas=parseInt(document.getElementById('cuotas').value)||1;
-      var impCuota=imp/cuotas;
-      document.getElementById('porc-sofi').value=Math.round(impCuota/2);
-      document.getElementById('porc-guille').value=Math.round(impCuota/2);
+      document.getElementById('porc-sofi').value=Math.round(imp/2);
+      document.getElementById('porc-guille').value=Math.round(imp/2);
     }
   }
 }
@@ -289,7 +287,6 @@ document.getElementById('tbtn-cargar').addEventListener('click',function(){showT
 document.getElementById('tbtn-historial').addEventListener('click',function(){showTab('historial');});
 document.getElementById('tbtn-resumen').addEventListener('click',function(){showTab('resumen');});
 document.getElementById('hmes').addEventListener('change',renderHist);
-document.getElementById('rmes').addEventListener('change',renderRes);
 
 function showTab(t){
   ['cargar','historial','resumen'].forEach(function(n){
@@ -313,7 +310,6 @@ function fillMonths(){
   if(keys.indexOf(cur)<0)keys.unshift(cur);
   var opts=keys.map(function(k){var p=k.split('-');return '<option value="'+k+'">'+MESES[+p[1]]+' '+p[0]+'</option>';}).join('');
   document.getElementById('hmes').innerHTML=opts;
-  document.getElementById('rmes').innerHTML=opts;
 }
 function resetForm(){
   editingId=null;
@@ -341,7 +337,6 @@ document.getElementById('savebtn').addEventListener('click',function(){
   var fechaVal=document.getElementById('fecha').value;
   if(!fechaVal){toast('Ingresá una fecha');return;}
   var cuotas=parseInt(document.getElementById('cuotas').value)||1;
-  var cuotaImp=imp/cuotas;
   var mSofi=state.comp==='Si'?parseFloat(document.getElementById('porc-sofi').value)||0:0;
   var mGuille=state.comp==='Si'?parseFloat(document.getElementById('porc-guille').value)||0:0;
   if(state.comp==='Si'&&(mSofi+mGuille)<=0){toast('Ingresá cuánto paga cada uno');return;}
@@ -367,8 +362,8 @@ document.getElementById('savebtn').addEventListener('click',function(){
       id:saved===0?baseId:(baseId+'_c'+(saved+1)),
       fecha:fechaCuota.toISOString(),
       tarjeta:tarjeta,
-      detalle:det+(cuotas>1?' (cuota '+(saved+1)+'/'+cuotas+')':''),
-      importe:Math.round(cuotaImp),
+      detalle:cuotas>1?det+' ('+  (saved+1)+'/'+cuotas+')':det,
+      importe:imp,
       cuotas:cuotas,
       cuotaActual:saved+1,
       compartido:state.comp,
@@ -424,39 +419,64 @@ function renderHist(){
   el.querySelectorAll('.del-btn').forEach(function(b){b.addEventListener('click',function(){delEntry(this.getAttribute('data-id'));});});
 }
 
+function getMesKey(year, month) {
+  return year + '-' + month;
+}
+
 function renderRes(){
-  var key=document.getElementById('rmes').value;
-  var list=entries.filter(function(e){return mk(e.fecha)===key;});
-  if(!list.length){document.getElementById('rcontent').innerHTML='<div class="empty">Sin registros este mes</div>';return;}
-  var totalSofi=0,totalGuille=0,totalComp=0;
-  var porTarjeta={};
-  TARJETAS.forEach(function(t){porTarjeta[t]={total:0,sofi:0,guille:0,comp:0};});
-  list.forEach(function(e){
-    var pt=porTarjeta[e.tarjeta];
-    if(!pt)return;
-    pt.total+=e.importe;
-    if(e.compartido==='Si'){
-      pt.sofi+=e.montSofi;pt.guille+=e.montGuille;pt.comp+=e.importe;
-      totalSofi+=e.montSofi;totalGuille+=e.montGuille;totalComp+=e.importe;
-    } else {
-      var esSofi=e.tarjeta.indexOf('Sofi')>=0;
-      if(esSofi){pt.sofi+=e.importe;totalSofi+=e.importe;}
-      else{pt.guille+=e.importe;totalGuille+=e.importe;}
+  if(!entries.length){document.getElementById('rcontent').innerHTML='<div class="empty">Sin registros cargados</div>';return;}
+
+  var now=new Date();
+  var meses=[];
+  for(var i=0;i<4;i++){
+    var d=new Date(now.getFullYear(), now.getMonth()+i, 1);
+    meses.push({year:d.getFullYear(), month:d.getMonth(), key:getMesKey(d.getFullYear(),d.getMonth()), label:MESES[d.getMonth()]+' '+d.getFullYear()});
+  }
+
+  var h='';
+
+  meses.forEach(function(mes, idx){
+    var list=entries.filter(function(e){return mk(e.fecha)===mes.key;});
+    if(!list.length && idx>0) return;
+
+    var totalSofi=0, totalGuille=0, totalMes=0;
+    var porTarjeta={};
+    TARJETAS.forEach(function(t){porTarjeta[t]={total:0,sofi:0,guille:0};});
+
+    list.forEach(function(e){
+      var pt=porTarjeta[e.tarjeta];
+      if(!pt)return;
+      pt.total+=e.importe;
+      totalMes+=e.importe;
+      if(e.compartido==='Si'){
+        pt.sofi+=e.montSofi;pt.guille+=e.montGuille;
+        totalSofi+=e.montSofi;totalGuille+=e.montGuille;
+      } else {
+        var esSofi=e.tarjeta.indexOf('Sofi')>=0;
+        if(esSofi){pt.sofi+=e.importe;totalSofi+=e.importe;}
+        else{pt.guille+=e.importe;totalGuille+=e.importe;}
+      }
+    });
+
+    var esActual = idx===0;
+    h+='<div class="mes-card">';
+    h+='<div class="mes-header"><span class="mes-titulo">'+(esActual?'📅 ':'')+mes.label+(esActual?' (actual)':'')+'</span><span class="mes-total">'+ars(totalMes)+'</span></div>';
+    h+='<div class="mes-row"><span class="mes-label">Le toca a Sofi</span><span class="mes-val sofi">'+ars(totalSofi)+'</span></div>';
+    h+='<div class="mes-row"><span class="mes-label">Le toca a Guille</span><span class="mes-val guille">'+ars(totalGuille)+'</span></div>';
+
+    var tarjetasConGasto=TARJETAS.filter(function(t){return porTarjeta[t]&&porTarjeta[t].total>0;});
+    if(tarjetasConGasto.length){
+      h+='<div style="margin-top:8px;padding-top:8px;border-top:0.5px solid #F0EDE6;">';
+      tarjetasConGasto.forEach(function(t){
+        var pt=porTarjeta[t];
+        h+='<div class="mes-row"><span class="mes-label">'+t+'</span><span class="mes-val">'+ars(pt.total)+'</span></div>';
+      });
+      h+='</div>';
     }
-  });
-  var h='<div class="stat-grid"><div class="stat"><div class="slabel">Le toca a Sofi</div><div class="sval" style="color:#C9406A;">'+ars(totalSofi)+'</div></div><div class="stat"><div class="slabel">Le toca a Guille</div><div class="sval" style="color:#2563EB;">'+ars(totalGuille)+'</div></div><div class="stat"><div class="slabel">Total mes</div><div class="sval red">'+ars(totalSofi+totalGuille)+'</div></div><div class="stat"><div class="slabel">Compartido</div><div class="sval">'+ars(totalComp)+'</div></div></div>';
-  h+='<div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px;">Por tarjeta</div>';
-  TARJETAS.forEach(function(t){
-    var pt=porTarjeta[t];
-    if(pt.total===0)return;
-    h+='<div class="tarjeta-card"><div class="tarjeta-name">'+t+'</div>';
-    h+='<div class="tarjeta-row"><span class="tarjeta-label">Total</span><span class="tarjeta-val red">'+ars(pt.total)+'</span></div>';
-    if(pt.comp>0)h+='<div class="tarjeta-row"><span class="tarjeta-label">Compartido</span><span class="tarjeta-val">'+ars(pt.comp)+'</span></div>';
-    h+='<div class="tarjeta-row"><span class="tarjeta-label">Le toca a Sofi</span><span class="tarjeta-val sofi">'+ars(pt.sofi)+'</span></div>';
-    h+='<div class="tarjeta-row"><span class="tarjeta-label">Le toca a Guille</span><span class="tarjeta-val guille">'+ars(pt.guille)+'</span></div>';
     h+='</div>';
   });
-  document.getElementById('rcontent').innerHTML=h;
+
+  document.getElementById('rcontent').innerHTML = h || '<div class="empty">Sin registros cargados</div>';
 }
 
 function delEntry(id){
