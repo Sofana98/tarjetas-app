@@ -34,14 +34,13 @@ body { background: #F5F4F0; font-family: -apple-system, BlinkMacSystemFont, 'Seg
 .field > label { display: block; font-size: 11px; font-weight: 700; color: #888; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.07em; }
 .field input[type=text], .field input[type=number], .field input[type=date], .field select { width: 100%; font-size: 16px; color: #1A1916; background: #F5F4F0; border: 1px solid #E0DDD6; border-radius: 10px; padding: 11px 13px; font-family: inherit; outline: none; -webkit-appearance: none; appearance: none; }
 .field input:focus, .field select:focus { border-color: #1A1916; background: #fff; }
-.porc-row { display: flex; gap: 10px; align-items: center; }
+.porc-row { display: flex; gap: 10px; align-items: center; margin-bottom: 8px; }
+.porc-row:last-child { margin-bottom: 0; }
 .porc-row input { flex: 1; }
-.porc-label { font-size: 14px; color: #888; white-space: nowrap; }
+.porc-label { font-size: 14px; font-weight: 600; white-space: nowrap; min-width: 60px; }
 .toggle-row { display: flex; gap: 8px; flex-wrap: wrap; }
 .tb { flex: 1; min-width: 70px; padding: 12px 8px; border: 1.5px solid #E0DDD6; border-radius: 10px; font-size: 14px; font-weight: 500; cursor: pointer; background: #F5F4F0; color: #888; font-family: inherit; text-align: center; -webkit-appearance: none; appearance: none; touch-action: manipulation; }
 .tb.sel { background: #fff; border-color: #1A1916; color: #1A1916; }
-.tb.sel.sofi-s { background: #FDF0F4; border-color: #C9406A; color: #C9406A; }
-.tb.sel.guille-s { background: #EFF6FF; border-color: #2563EB; color: #2563EB; }
 .save-btn { width: 100%; padding: 15px; background: #1A1916; color: #fff; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; font-family: inherit; margin-top: 4px; -webkit-appearance: none; touch-action: manipulation; }
 .save-btn:disabled { opacity: 0.45; }
 .cancel-btn { width: 100%; padding: 13px; background: transparent; color: #888; border: 1px solid #E0DDD6; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; margin-top: 8px; touch-action: manipulation; }
@@ -59,10 +58,8 @@ body { background: #F5F4F0; font-family: -apple-system, BlinkMacSystemFont, 'Seg
 .del-btn { background: none; border: none; color: #ccc; cursor: pointer; font-size: 16px; padding: 4px 5px; touch-action: manipulation; }
 .entry-meta { display: flex; gap: 5px; margin-top: 7px; flex-wrap: wrap; align-items: center; }
 .badge { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 20px; }
-.b-tarjeta { background: #F5F3FF; color: #6D28D9; }
 .b-cuota { background: #FFF7ED; color: #C2410C; }
 .b-comp { background: #F0FDF4; color: #16A34A; }
-.b-gray { background: #F5F4F0; color: #666; border: 1px solid #E0DDD6; }
 .edate { font-size: 11px; color: #aaa; }
 .empty { text-align: center; padding: 40px 20px; color: #aaa; font-size: 14px; }
 .lmsg { text-align: center; padding: 32px; color: #aaa; font-size: 14px; }
@@ -71,7 +68,6 @@ body { background: #F5F4F0; font-family: -apple-system, BlinkMacSystemFont, 'Seg
 .slabel { font-size: 11px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 5px; }
 .sval { font-size: 18px; font-weight: 700; color: #1A1916; }
 .sval.red { color: #DC2626; }
-.sval.purple { color: #6D28D9; }
 .tarjeta-card { background: #fff; border: 1px solid #E8E4DC; border-radius: 14px; padding: 14px 16px; margin-bottom: 10px; }
 .tarjeta-name { font-size: 14px; font-weight: 700; color: #1A1916; margin-bottom: 8px; }
 .tarjeta-row { display: flex; justify-content: space-between; font-size: 13px; padding: 3px 0; }
@@ -149,14 +145,14 @@ body { background: #F5F4F0; font-family: -apple-system, BlinkMacSystemFont, 'Seg
           </div>
         </div>
         <div class="field" id="porc-field" style="display:none">
-          <label>Porcentaje por persona</label>
+          <label>¿Cuánto paga cada uno?</label>
           <div class="porc-row">
-            <span class="porc-label" style="color:#C9406A;">Sofi</span>
-            <input type="number" id="porc-sofi" value="50" min="0" max="100" />
-            <span class="porc-label">%</span>
-            <span class="porc-label" style="color:#2563EB;">Guille</span>
-            <input type="number" id="porc-guille" value="50" min="0" max="100" readonly style="background:#eee;" />
-            <span class="porc-label">%</span>
+            <span class="porc-label" style="color:#C9406A;">Sofi $</span>
+            <input type="number" id="porc-sofi" placeholder="0" inputmode="decimal" min="0" />
+          </div>
+          <div class="porc-row">
+            <span class="porc-label" style="color:#2563EB;">Guille $</span>
+            <input type="number" id="porc-guille" placeholder="0" inputmode="decimal" min="0" readonly style="background:#eee;color:#888;" />
           </div>
         </div>
       </div>
@@ -223,7 +219,7 @@ function load(cb){
           id:String(r[0]),fecha:r[1],tarjeta:r[2],detalle:r[3],
           importe:parseFloat(r[4])||0,cuotas:parseInt(r[5])||1,
           cuotaActual:parseInt(r[6])||1,compartido:r[7],
-          porcSofi:parseFloat(r[8])||50,porcGuille:parseFloat(r[9])||50
+          montSofi:parseFloat(r[8])||0,montGuille:parseFloat(r[9])||0
         };
       }).filter(function(e){return e.detalle&&e.detalle.length>0;});
       sync('ok');fillMonths();if(cb)cb();
@@ -240,10 +236,32 @@ function post(body,cb){
 }
 
 document.getElementById('porc-sofi').addEventListener('input',function(){
-  var v=parseFloat(this.value)||0;
-  if(v<0)v=0;if(v>100)v=100;
-  this.value=v;
-  document.getElementById('porc-guille').value=100-v;
+  var imp=parseFloat(document.getElementById('importe').value)||0;
+  var cuotas=parseInt(document.getElementById('cuotas').value)||1;
+  var impCuota=imp/cuotas;
+  var vs=parseFloat(this.value)||0;
+  if(vs>impCuota)vs=impCuota;
+  document.getElementById('porc-guille').value=Math.max(0,impCuota-vs).toFixed(0);
+});
+
+document.getElementById('importe').addEventListener('input',function(){
+  var imp=parseFloat(this.value)||0;
+  var cuotas=parseInt(document.getElementById('cuotas').value)||1;
+  var impCuota=imp/cuotas;
+  if(state.comp==='Si'){
+    var vs=parseFloat(document.getElementById('porc-sofi').value)||0;
+    document.getElementById('porc-guille').value=Math.max(0,impCuota-vs).toFixed(0);
+  }
+});
+
+document.getElementById('cuotas').addEventListener('change',function(){
+  var imp=parseFloat(document.getElementById('importe').value)||0;
+  var cuotas=parseInt(this.value)||1;
+  var impCuota=imp/cuotas;
+  if(state.comp==='Si'){
+    document.getElementById('porc-sofi').value=Math.round(impCuota/2);
+    document.getElementById('porc-guille').value=Math.round(impCuota/2);
+  }
 });
 
 function handleToggle(btn){
@@ -254,6 +272,13 @@ function handleToggle(btn){
   state[group]=val;
   if(group==='comp'){
     document.getElementById('porc-field').style.display=val==='Si'?'':'none';
+    if(val==='Si'){
+      var imp=parseFloat(document.getElementById('importe').value)||0;
+      var cuotas=parseInt(document.getElementById('cuotas').value)||1;
+      var impCuota=imp/cuotas;
+      document.getElementById('porc-sofi').value=Math.round(impCuota/2);
+      document.getElementById('porc-guille').value=Math.round(impCuota/2);
+    }
   }
 }
 document.addEventListener('click',function(e){
@@ -274,14 +299,12 @@ function showTab(t){
   if(t==='historial')load(renderHist);
   if(t==='resumen')load(renderRes);
 }
-
 function mk(f){
   var d=new Date(f);
   if(isNaN(d.getTime()))return '';
   return d.getFullYear()+'-'+d.getMonth();
 }
 function ars(n){return '$'+Math.round(n).toLocaleString('es-AR');}
-
 function fillMonths(){
   var keys=[];
   entries.forEach(function(e){var k=mk(e.fecha);if(k&&keys.indexOf(k)<0)keys.push(k);});
@@ -292,7 +315,6 @@ function fillMonths(){
   document.getElementById('hmes').innerHTML=opts;
   document.getElementById('rmes').innerHTML=opts;
 }
-
 function resetForm(){
   editingId=null;
   document.getElementById('edit-banner').style.display='none';
@@ -302,14 +324,13 @@ function resetForm(){
   document.getElementById('importe').value='';
   document.getElementById('fecha').value=todayStr();
   document.getElementById('cuotas').value='1';
-  document.getElementById('porc-sofi').value='50';
-  document.getElementById('porc-guille').value='50';
+  document.getElementById('porc-sofi').value='';
+  document.getElementById('porc-guille').value='';
   document.getElementById('porc-field').style.display='none';
   state.comp='No';
   document.querySelectorAll('[data-group="comp"]').forEach(function(b){b.classList.remove('sel');});
   document.querySelector('[data-group="comp"][data-val="No"]').classList.add('sel');
 }
-
 document.getElementById('cancelbtn').addEventListener('click',resetForm);
 
 document.getElementById('savebtn').addEventListener('click',function(){
@@ -320,17 +341,15 @@ document.getElementById('savebtn').addEventListener('click',function(){
   var fechaVal=document.getElementById('fecha').value;
   if(!fechaVal){toast('Ingresá una fecha');return;}
   var cuotas=parseInt(document.getElementById('cuotas').value)||1;
-  var pSofi=parseFloat(document.getElementById('porc-sofi').value)||50;
-  var pGuille=100-pSofi;
+  var cuotaImp=imp/cuotas;
+  var mSofi=state.comp==='Si'?parseFloat(document.getElementById('porc-sofi').value)||0:0;
+  var mGuille=state.comp==='Si'?parseFloat(document.getElementById('porc-guille').value)||0:0;
+  if(state.comp==='Si'&&(mSofi+mGuille)<=0){toast('Ingresá cuánto paga cada uno');return;}
   var tarjeta=document.getElementById('tarjeta').value;
-
   var btn=document.getElementById('savebtn');
   btn.disabled=true;btn.textContent='Guardando...';
-
   var baseId=editingId||Date.now()+'';
   var fechaBase=new Date(fechaVal+'T12:00:00');
-  var cuotaImporte=imp/cuotas;
-  var pending=cuotas;
   var saved=0;
 
   function saveNext(){
@@ -349,12 +368,12 @@ document.getElementById('savebtn').addEventListener('click',function(){
       fecha:fechaCuota.toISOString(),
       tarjeta:tarjeta,
       detalle:det+(cuotas>1?' (cuota '+(saved+1)+'/'+cuotas+')':''),
-      importe:cuotaImporte,
+      importe:Math.round(cuotaImp),
       cuotas:cuotas,
       cuotaActual:saved+1,
       compartido:state.comp,
-      porcentajeSofi:state.comp==='Si'?pSofi:100,
-      porcentajeGuille:state.comp==='Si'?pGuille:0
+      porcentajeSofi:mSofi,
+      porcentajeGuille:mGuille
     };
     post(body,function(ok){
       if(ok){saved++;saveNext();}
@@ -385,8 +404,8 @@ function editEntry(id){
   var cb=document.querySelector('[data-group="comp"][data-val="'+e.compartido+'"]');
   if(cb)cb.classList.add('sel');
   document.getElementById('porc-field').style.display=e.compartido==='Si'?'':'none';
-  document.getElementById('porc-sofi').value=e.porcSofi;
-  document.getElementById('porc-guille').value=e.porcGuille;
+  document.getElementById('porc-sofi').value=e.montSofi||'';
+  document.getElementById('porc-guille').value=e.montGuille||'';
   window.scrollTo(0,0);
 }
 
@@ -398,7 +417,7 @@ function renderHist(){
   if(!list.length){el.innerHTML='<div class="empty">Sin registros este mes</div>';return;}
   el.innerHTML=list.map(function(e){
     var cuotaLabel=e.cuotas>1?'Cuota '+e.cuotaActual+'/'+e.cuotas:'Contado';
-    var compLabel=e.compartido==='Si'?'Sofi '+e.porcSofi+'% · Guille '+e.porcGuille+'%':'';
+    var compLabel=e.compartido==='Si'?'Sofi '+ars(e.montSofi)+' · Guille '+ars(e.montGuille):'';
     return '<div class="entry"><div class="entry-top"><div style="min-width:0;flex:1;"><div class="entry-name">'+e.detalle+'</div><div class="entry-sub">'+e.tarjeta+'</div></div><div class="entry-right"><div class="entry-amount">'+ars(e.importe)+'</div><button type="button" class="edit-btn" data-id="'+e.id+'">✏️</button><button type="button" class="del-btn" data-id="'+e.id+'">✕</button></div></div><div class="entry-meta"><span class="badge b-cuota">'+cuotaLabel+'</span>'+(e.compartido==='Si'?'<span class="badge b-comp">'+compLabel+'</span>':'')+'<span class="edate">'+new Date(e.fecha).toLocaleDateString('es-AR',{day:'numeric',month:'short'})+'</span></div></div>';
   }).join('');
   el.querySelectorAll('.edit-btn').forEach(function(b){b.addEventListener('click',function(){editEntry(this.getAttribute('data-id'));});});
@@ -409,41 +428,34 @@ function renderRes(){
   var key=document.getElementById('rmes').value;
   var list=entries.filter(function(e){return mk(e.fecha)===key;});
   if(!list.length){document.getElementById('rcontent').innerHTML='<div class="empty">Sin registros este mes</div>';return;}
-
   var totalSofi=0,totalGuille=0,totalComp=0;
   var porTarjeta={};
   TARJETAS.forEach(function(t){porTarjeta[t]={total:0,sofi:0,guille:0,comp:0};});
-
   list.forEach(function(e){
     var pt=porTarjeta[e.tarjeta];
     if(!pt)return;
     pt.total+=e.importe;
     if(e.compartido==='Si'){
-      var ms=e.importe*(e.porcSofi/100);
-      var mg=e.importe*(e.porcGuille/100);
-      pt.sofi+=ms;pt.guille+=mg;pt.comp+=e.importe;
-      totalSofi+=ms;totalGuille+=mg;totalComp+=e.importe;
+      pt.sofi+=e.montSofi;pt.guille+=e.montGuille;pt.comp+=e.importe;
+      totalSofi+=e.montSofi;totalGuille+=e.montGuille;totalComp+=e.importe;
     } else {
       var esSofi=e.tarjeta.indexOf('Sofi')>=0;
       if(esSofi){pt.sofi+=e.importe;totalSofi+=e.importe;}
       else{pt.guille+=e.importe;totalGuille+=e.importe;}
     }
   });
-
-  var h='<div class="stat-grid"><div class="stat"><div class="slabel">Total mes</div><div class="sval red">'+ars(totalSofi+totalGuille)+'</div></div><div class="stat"><div class="slabel">Compartido</div><div class="sval purple">'+ars(totalComp)+'</div></div><div class="stat"><div class="slabel">Le toca a Sofi</div><div class="sval" style="color:#C9406A;">'+ars(totalSofi)+'</div></div><div class="stat"><div class="slabel">Le toca a Guille</div><div class="sval" style="color:#2563EB;">'+ars(totalGuille)+'</div></div></div>';
-
+  var h='<div class="stat-grid"><div class="stat"><div class="slabel">Le toca a Sofi</div><div class="sval" style="color:#C9406A;">'+ars(totalSofi)+'</div></div><div class="stat"><div class="slabel">Le toca a Guille</div><div class="sval" style="color:#2563EB;">'+ars(totalGuille)+'</div></div><div class="stat"><div class="slabel">Total mes</div><div class="sval red">'+ars(totalSofi+totalGuille)+'</div></div><div class="stat"><div class="slabel">Compartido</div><div class="sval">'+ars(totalComp)+'</div></div></div>';
   h+='<div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px;">Por tarjeta</div>';
   TARJETAS.forEach(function(t){
     var pt=porTarjeta[t];
     if(pt.total===0)return;
     h+='<div class="tarjeta-card"><div class="tarjeta-name">'+t+'</div>';
     h+='<div class="tarjeta-row"><span class="tarjeta-label">Total</span><span class="tarjeta-val red">'+ars(pt.total)+'</span></div>';
-    if(pt.comp>0)h+='<div class="tarjeta-row"><span class="tarjeta-label">Gastos compartidos</span><span class="tarjeta-val">'+ars(pt.comp)+'</span></div>';
+    if(pt.comp>0)h+='<div class="tarjeta-row"><span class="tarjeta-label">Compartido</span><span class="tarjeta-val">'+ars(pt.comp)+'</span></div>';
     h+='<div class="tarjeta-row"><span class="tarjeta-label">Le toca a Sofi</span><span class="tarjeta-val sofi">'+ars(pt.sofi)+'</span></div>';
     h+='<div class="tarjeta-row"><span class="tarjeta-label">Le toca a Guille</span><span class="tarjeta-val guille">'+ars(pt.guille)+'</span></div>';
     h+='</div>';
   });
-
   document.getElementById('rcontent').innerHTML=h;
 }
 
