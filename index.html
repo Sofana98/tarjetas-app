@@ -45,6 +45,7 @@ body { background: #F5F4F0; font-family: -apple-system, BlinkMacSystemFont, 'Seg
 .save-btn:disabled { opacity: 0.45; }
 .cancel-btn { width: 100%; padding: 13px; background: transparent; color: #888; border: 1px solid #E0DDD6; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; margin-top: 8px; touch-action: manipulation; }
 .edit-banner { background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 10px; padding: 10px 14px; margin-bottom: 12px; font-size: 13px; color: #2563EB; font-weight: 600; }
+.subs-info { background: #F5F3FF; border: 1px solid #DDD6FE; border-radius: 10px; padding: 10px 14px; margin-top: 8px; font-size: 13px; color: #6D28D9; line-height: 1.6; }
 .month-sel { margin-bottom: 12px; }
 .month-sel select { width: 100%; font-size: 15px; background: #fff; border: 1px solid #E8E4DC; border-radius: 10px; padding: 10px 13px; font-family: inherit; -webkit-appearance: none; appearance: none; color: #1A1916; outline: none; }
 .entry { padding: 12px 0; border-bottom: 1px solid #F0EDE6; }
@@ -60,33 +61,26 @@ body { background: #F5F4F0; font-family: -apple-system, BlinkMacSystemFont, 'Seg
 .badge { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 20px; }
 .b-cuota { background: #FFF7ED; color: #C2410C; }
 .b-comp { background: #F0FDF4; color: #16A34A; }
+.b-subs { background: #F5F3FF; color: #6D28D9; }
 .edate { font-size: 11px; color: #aaa; }
 .empty { text-align: center; padding: 40px 20px; color: #aaa; font-size: 14px; }
 .lmsg { text-align: center; padding: 32px; color: #aaa; font-size: 14px; }
-.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
-.stat { background: #fff; border: 1px solid #E8E4DC; border-radius: 12px; padding: 13px 14px; }
-.slabel { font-size: 11px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 5px; }
-.sval { font-size: 18px; font-weight: 700; color: #1A1916; }
-.sval.red { color: #DC2626; }
-.tarjeta-card { background: #fff; border: 1px solid #E8E4DC; border-radius: 14px; padding: 14px 16px; margin-bottom: 10px; }
-.tarjeta-name { font-size: 14px; font-weight: 700; color: #1A1916; margin-bottom: 8px; }
-.tarjeta-row { display: flex; justify-content: space-between; font-size: 13px; padding: 3px 0; }
-.tarjeta-label { color: #888; }
-.tarjeta-val { font-weight: 600; color: #1A1916; }
-.tarjeta-val.red { color: #DC2626; }
-.tarjeta-val.sofi { color: #C9406A; }
-.tarjeta-val.guille { color: #2563EB; }
 .mes-card { background: #fff; border: 1px solid #E8E4DC; border-radius: 14px; padding: 14px 16px; margin-bottom: 10px; }
 .mes-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
 .mes-titulo { font-size: 15px; font-weight: 700; color: #1A1916; }
 .mes-total { font-size: 15px; font-weight: 700; color: #DC2626; }
-.mes-row { display: flex; justify-content: space-between; font-size: 13px; padding: 3px 0; border-bottom: 0.5px solid #F0EDE6; }
+.mes-row { display: flex; justify-content: space-between; font-size: 13px; padding: 4px 0; border-bottom: 0.5px solid #F0EDE6; }
 .mes-row:last-child { border-bottom: none; }
 .mes-label { color: #888; }
 .mes-val { font-weight: 600; }
 .mes-val.sofi { color: #C9406A; }
 .mes-val.guille { color: #2563EB; }
-.seccion-titulo { font-size: 11px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.06em; margin: 16px 0 10px; }
+.deudas-card { background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 14px; padding: 14px 16px; margin-bottom: 10px; }
+.deudas-titulo { font-size: 13px; font-weight: 700; color: #92400E; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+.deuda-row { display: flex; justify-content: space-between; font-size: 13px; padding: 4px 0; border-bottom: 0.5px solid #FEF3C7; }
+.deuda-row:last-child { border-bottom: none; }
+.deuda-nombre { color: #78350F; }
+.deuda-monto { font-weight: 700; color: #B45309; }
 .toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%); background: #1A1916; color: #fff; padding: 12px 22px; border-radius: 10px; font-size: 14px; font-weight: 600; opacity: 0; transition: opacity 0.2s; pointer-events: none; z-index: 999; white-space: nowrap; max-width: 88vw; }
 .toast.show { opacity: 1; }
 </style>
@@ -154,13 +148,14 @@ body { background: #F5F4F0; font-family: -apple-system, BlinkMacSystemFont, 'Seg
           </select>
         </div>
         <div class="field">
-          <label>¿Compartido?</label>
+          <label>Tipo de gasto</label>
           <div class="toggle-row">
-            <button type="button" class="tb" data-group="comp" data-val="Si">Sí</button>
-            <button type="button" class="tb sel" data-group="comp" data-val="No">No</button>
+            <button type="button" class="tb sel" data-group="tipo" data-val="propio">Solo mío</button>
+            <button type="button" class="tb" data-group="tipo" data-val="compartido">Con Guille</button>
+            <button type="button" class="tb" data-group="tipo" data-val="suscripcion">Suscripción</button>
           </div>
         </div>
-        <div class="field" id="porc-field" style="display:none">
+        <div class="field" id="comp-field" style="display:none">
           <label>¿Cuánto paga cada uno por cuota?</label>
           <div class="porc-row">
             <span class="porc-label" style="color:#C9406A;">Sofi $</span>
@@ -168,8 +163,16 @@ body { background: #F5F4F0; font-family: -apple-system, BlinkMacSystemFont, 'Seg
           </div>
           <div class="porc-row">
             <span class="porc-label" style="color:#2563EB;">Guille $</span>
-            <input type="number" id="porc-guille" placeholder="0" inputmode="decimal" min="0" readonly style="background:#eee;color:#888;" />
+            <input type="number" id="porc-guille" placeholder="0" inputmode="decimal" min="0" />
           </div>
+        </div>
+        <div class="field" id="subs-field" style="display:none">
+          <label>Suscripción</label>
+          <select id="subs-tipo" onchange="updateSubsInfo()">
+            <option value="prime">Prime Video (Sofi, Guille, Santi)</option>
+            <option value="youtube">YouTube (Sofi, Guille, Santi, Pablo, Alicia, Fran)</option>
+          </select>
+          <div class="subs-info" id="subs-info"></div>
         </div>
       </div>
       <button type="button" class="save-btn" id="savebtn">Guardar</button>
@@ -190,13 +193,21 @@ var SCRIPT='https://script.google.com/macros/s/AKfycbyGnm9bFTNzN3HJ2idbBZrl2WRsp
 var CSV_BASE='https://docs.google.com/spreadsheets/d/e/2PACX-1vRjyeOsp51j38139qyFqtud031CxFCjf4P3kkYyzh8LBRQUpciVwOucShA9KZD58M0tva_v7_DOoy27/pub?single=true&output=csv&gid=1577857723';
 var TARJETAS=['MACRO Sofi','NARANJA Sofi','BBVA Guille','MACRO Guille','MERCADO PAGO Guille'];
 var MESES=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
-var state={comp:'No'};
+var SUSCRIPCIONES={
+  prime:{nombre:'Prime Video',personas:['Sofi','Guille','Santi'],total:3},
+  youtube:{nombre:'YouTube',personas:['Sofi','Guille','Santi','Pablo','Alicia','Fran'],total:6}
+};
+var state={tipo:'propio'};
 var entries=[];
 var editingId=null;
 
 function todayStr(){
   var d=new Date();
   return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);
+}
+function currentMonthKey(){
+  var d=new Date();
+  return d.getFullYear()+'-'+d.getMonth();
 }
 function sync(s){
   var p=document.getElementById('spill'),d=document.getElementById('sdot'),t=document.getElementById('stxt');
@@ -234,7 +245,8 @@ function load(cb){
           id:String(r[0]),fecha:r[1],tarjeta:r[2],detalle:r[3],
           importe:parseFloat(r[4])||0,cuotas:parseInt(r[5])||1,
           cuotaActual:parseInt(r[6])||1,compartido:r[7],
-          montSofi:parseFloat(r[8])||0,montGuille:parseFloat(r[9])||0
+          montSofi:parseFloat(r[8])||0,montGuille:parseFloat(r[9])||0,
+          tipoGasto:r[10]||'propio',subsKey:r[11]||''
         };
       }).filter(function(e){return e.detalle&&e.detalle.length>0;});
       sync('ok');fillMonths();if(cb)cb();
@@ -250,18 +262,22 @@ function post(body,cb){
     .catch(function(){sync('error');if(cb)cb(false);});
 }
 
-document.getElementById('porc-sofi').addEventListener('input',function(){
+function updateSubsInfo(){
+  var key=document.getElementById('subs-tipo').value;
+  var s=SUSCRIPCIONES[key];
   var imp=parseFloat(document.getElementById('importe').value)||0;
-  var vs=parseFloat(this.value)||0;
-  if(vs>imp)vs=imp;
-  document.getElementById('porc-guille').value=Math.max(0,imp-vs).toFixed(0);
-});
-document.getElementById('importe').addEventListener('input',function(){
-  if(state.comp==='Si'){
-    var imp=parseFloat(this.value)||0;
-    var vs=parseFloat(document.getElementById('porc-sofi').value)||0;
-    document.getElementById('porc-guille').value=Math.max(0,imp-vs).toFixed(0);
+  var cuota=imp>0?imp/s.total:0;
+  var externos=s.personas.filter(function(p){return p!=='Sofi'&&p!=='Guille';});
+  var info='Se divide entre '+s.total+' personas: '+s.personas.join(', ')+'.<br>';
+  if(imp>0){
+    info+='Le toca a cada uno: <strong>'+ars(cuota)+'</strong>';
+    if(externos.length) info+='<br>Te deben dar: '+externos.map(function(p){return p+' '+ars(cuota);}).join(', ');
   }
+  document.getElementById('subs-info').innerHTML=info;
+}
+
+document.getElementById('importe').addEventListener('input',function(){
+  if(state.tipo==='suscripcion') updateSubsInfo();
 });
 
 function handleToggle(btn){
@@ -270,13 +286,10 @@ function handleToggle(btn){
   btn.closest('.toggle-row').querySelectorAll('[data-group]').forEach(function(b){b.classList.remove('sel');});
   btn.classList.add('sel');
   state[group]=val;
-  if(group==='comp'){
-    document.getElementById('porc-field').style.display=val==='Si'?'':'none';
-    if(val==='Si'){
-      var imp=parseFloat(document.getElementById('importe').value)||0;
-      document.getElementById('porc-sofi').value=Math.round(imp/2);
-      document.getElementById('porc-guille').value=Math.round(imp/2);
-    }
+  if(group==='tipo'){
+    document.getElementById('comp-field').style.display=val==='compartido'?'':'none';
+    document.getElementById('subs-field').style.display=val==='suscripcion'?'':'none';
+    if(val==='suscripcion') updateSubsInfo();
   }
 }
 document.addEventListener('click',function(e){
@@ -302,15 +315,22 @@ function mk(f){
   return d.getFullYear()+'-'+d.getMonth();
 }
 function ars(n){return '$'+Math.round(n).toLocaleString('es-AR');}
+
 function fillMonths(){
   var keys=[];
   entries.forEach(function(e){var k=mk(e.fecha);if(k&&keys.indexOf(k)<0)keys.push(k);});
   keys.sort().reverse();
-  var now=new Date(),cur=now.getFullYear()+'-'+now.getMonth();
+  var cur=currentMonthKey();
   if(keys.indexOf(cur)<0)keys.unshift(cur);
+  // Poner el mes actual primero
+  var idx=keys.indexOf(cur);
+  if(idx>0){keys.splice(idx,1);keys.unshift(cur);}
   var opts=keys.map(function(k){var p=k.split('-');return '<option value="'+k+'">'+MESES[+p[1]]+' '+p[0]+'</option>';}).join('');
   document.getElementById('hmes').innerHTML=opts;
+  // Seleccionar mes actual
+  document.getElementById('hmes').value=cur;
 }
+
 function resetForm(){
   editingId=null;
   document.getElementById('edit-banner').style.display='none';
@@ -322,10 +342,11 @@ function resetForm(){
   document.getElementById('cuotas').value='1';
   document.getElementById('porc-sofi').value='';
   document.getElementById('porc-guille').value='';
-  document.getElementById('porc-field').style.display='none';
-  state.comp='No';
-  document.querySelectorAll('[data-group="comp"]').forEach(function(b){b.classList.remove('sel');});
-  document.querySelector('[data-group="comp"][data-val="No"]').classList.add('sel');
+  document.getElementById('comp-field').style.display='none';
+  document.getElementById('subs-field').style.display='none';
+  state.tipo='propio';
+  document.querySelectorAll('[data-group="tipo"]').forEach(function(b){b.classList.remove('sel');});
+  document.querySelector('[data-group="tipo"][data-val="propio"]').classList.add('sel');
 }
 document.getElementById('cancelbtn').addEventListener('click',resetForm);
 
@@ -337,9 +358,24 @@ document.getElementById('savebtn').addEventListener('click',function(){
   var fechaVal=document.getElementById('fecha').value;
   if(!fechaVal){toast('Ingresá una fecha');return;}
   var cuotas=parseInt(document.getElementById('cuotas').value)||1;
-  var mSofi=state.comp==='Si'?parseFloat(document.getElementById('porc-sofi').value)||0:0;
-  var mGuille=state.comp==='Si'?parseFloat(document.getElementById('porc-guille').value)||0:0;
-  if(state.comp==='Si'&&(mSofi+mGuille)<=0){toast('Ingresá cuánto paga cada uno');return;}
+  var mSofi=0,mGuille=0,subsKey='';
+
+  if(state.tipo==='compartido'){
+    mSofi=parseFloat(document.getElementById('porc-sofi').value)||0;
+    mGuille=parseFloat(document.getElementById('porc-guille').value)||0;
+    if(mSofi+mGuille<=0){toast('Ingresá cuánto paga cada uno');return;}
+  } else if(state.tipo==='suscripcion'){
+    subsKey=document.getElementById('subs-tipo').value;
+    var s=SUSCRIPCIONES[subsKey];
+    var cuota=imp/s.total;
+    mSofi=cuota;
+    mGuille=s.personas.indexOf('Guille')>=0?cuota:0;
+  } else {
+    var esSofi=document.getElementById('tarjeta').value.indexOf('Sofi')>=0;
+    mSofi=esSofi?imp:0;
+    mGuille=esSofi?0:imp;
+  }
+
   var tarjeta=document.getElementById('tarjeta').value;
   var btn=document.getElementById('savebtn');
   btn.disabled=true;btn.textContent='Guardando...';
@@ -362,13 +398,11 @@ document.getElementById('savebtn').addEventListener('click',function(){
       id:saved===0?baseId:(baseId+'_c'+(saved+1)),
       fecha:fechaCuota.toISOString(),
       tarjeta:tarjeta,
-      detalle:cuotas>1?det+' ('+  (saved+1)+'/'+cuotas+')':det,
-      importe:imp,
-      cuotas:cuotas,
-      cuotaActual:saved+1,
-      compartido:state.comp,
-      porcentajeSofi:mSofi,
-      porcentajeGuille:mGuille
+      detalle:cuotas>1?det+' ('+(saved+1)+'/'+cuotas+')':det,
+      importe:imp,cuotas:cuotas,cuotaActual:saved+1,
+      compartido:state.tipo==='compartido'?'Si':'No',
+      porcentajeSofi:mSofi,porcentajeGuille:mGuille,
+      tipoGasto:state.tipo,subsKey:subsKey
     };
     post(body,function(ok){
       if(ok){saved++;saveNext();}
@@ -382,8 +416,7 @@ function editEntry(id){
   var e=null;
   for(var i=0;i<entries.length;i++){if(entries[i].id===id){e=entries[i];break;}}
   if(!e)return;
-  editingId=id;
-  showTab('cargar');
+  editingId=id;showTab('cargar');
   document.getElementById('edit-banner').style.display='';
   document.getElementById('savebtn').textContent='Guardar cambios';
   document.getElementById('cancelbtn').style.display='';
@@ -394,13 +427,19 @@ function editEntry(id){
   document.getElementById('detalle').value=e.detalle;
   document.getElementById('importe').value=e.importe;
   document.getElementById('cuotas').value=e.cuotas;
-  state.comp=e.compartido;
-  document.querySelectorAll('[data-group="comp"]').forEach(function(b){b.classList.remove('sel');});
-  var cb=document.querySelector('[data-group="comp"][data-val="'+e.compartido+'"]');
-  if(cb)cb.classList.add('sel');
-  document.getElementById('porc-field').style.display=e.compartido==='Si'?'':'none';
+  state.tipo=e.tipoGasto||'propio';
+  document.querySelectorAll('[data-group="tipo"]').forEach(function(b){b.classList.remove('sel');});
+  var tb=document.querySelector('[data-group="tipo"][data-val="'+state.tipo+'"]');
+  if(tb)tb.classList.add('sel');
+  document.getElementById('comp-field').style.display=state.tipo==='compartido'?'':'none';
+  document.getElementById('subs-field').style.display=state.tipo==='suscripcion'?'':'none';
   document.getElementById('porc-sofi').value=e.montSofi||'';
   document.getElementById('porc-guille').value=e.montGuille||'';
+  if(state.tipo==='suscripcion'&&e.subsKey){
+    var subEl=document.getElementById('subs-tipo');
+    for(var s=0;s<subEl.options.length;s++){if(subEl.options[s].value===e.subsKey){subEl.selectedIndex=s;break;}}
+    updateSubsInfo();
+  }
   window.scrollTo(0,0);
 }
 
@@ -412,43 +451,44 @@ function renderHist(){
   if(!list.length){el.innerHTML='<div class="empty">Sin registros este mes</div>';return;}
   el.innerHTML=list.map(function(e){
     var cuotaLabel=e.cuotas>1?'Cuota '+e.cuotaActual+'/'+e.cuotas:'Contado';
-    var compLabel=e.compartido==='Si'?'Sofi '+ars(e.montSofi)+' · Guille '+ars(e.montGuille):'';
-    return '<div class="entry"><div class="entry-top"><div style="min-width:0;flex:1;"><div class="entry-name">'+e.detalle+'</div><div class="entry-sub">'+e.tarjeta+'</div></div><div class="entry-right"><div class="entry-amount">'+ars(e.importe)+'</div><button type="button" class="edit-btn" data-id="'+e.id+'">✏️</button><button type="button" class="del-btn" data-id="'+e.id+'">✕</button></div></div><div class="entry-meta"><span class="badge b-cuota">'+cuotaLabel+'</span>'+(e.compartido==='Si'?'<span class="badge b-comp">'+compLabel+'</span>':'')+'<span class="edate">'+new Date(e.fecha).toLocaleDateString('es-AR',{day:'numeric',month:'short'})+'</span></div></div>';
+    var extraBadge='';
+    if(e.tipoGasto==='compartido') extraBadge='<span class="badge b-comp">Sofi '+ars(e.montSofi)+' · Guille '+ars(e.montGuille)+'</span>';
+    if(e.tipoGasto==='suscripcion'&&e.subsKey&&SUSCRIPCIONES[e.subsKey]) extraBadge='<span class="badge b-subs">'+SUSCRIPCIONES[e.subsKey].nombre+'</span>';
+    return '<div class="entry"><div class="entry-top"><div style="min-width:0;flex:1;"><div class="entry-name">'+e.detalle+'</div><div class="entry-sub">'+e.tarjeta+'</div></div><div class="entry-right"><div class="entry-amount">'+ars(e.importe)+'</div><button type="button" class="edit-btn" data-id="'+e.id+'">✏️</button><button type="button" class="del-btn" data-id="'+e.id+'">✕</button></div></div><div class="entry-meta"><span class="badge b-cuota">'+cuotaLabel+'</span>'+extraBadge+'<span class="edate">'+new Date(e.fecha).toLocaleDateString('es-AR',{day:'numeric',month:'short'})+'</span></div></div>';
   }).join('');
   el.querySelectorAll('.edit-btn').forEach(function(b){b.addEventListener('click',function(){editEntry(this.getAttribute('data-id'));});});
   el.querySelectorAll('.del-btn').forEach(function(b){b.addEventListener('click',function(){delEntry(this.getAttribute('data-id'));});});
 }
 
-function getMesKey(year, month) {
-  return year + '-' + month;
-}
-
 function renderRes(){
   if(!entries.length){document.getElementById('rcontent').innerHTML='<div class="empty">Sin registros cargados</div>';return;}
-
   var now=new Date();
   var meses=[];
   for(var i=0;i<4;i++){
-    var d=new Date(now.getFullYear(), now.getMonth()+i, 1);
-    meses.push({year:d.getFullYear(), month:d.getMonth(), key:getMesKey(d.getFullYear(),d.getMonth()), label:MESES[d.getMonth()]+' '+d.getFullYear()});
+    var d=new Date(now.getFullYear(),now.getMonth()+i,1);
+    meses.push({year:d.getFullYear(),month:d.getMonth(),key:d.getFullYear()+'-'+d.getMonth(),label:MESES[d.getMonth()]+' '+d.getFullYear()});
   }
-
   var h='';
-
-  meses.forEach(function(mes, idx){
+  meses.forEach(function(mes,idx){
     var list=entries.filter(function(e){return mk(e.fecha)===mes.key;});
-    if(!list.length && idx>0) return;
-
-    var totalSofi=0, totalGuille=0, totalMes=0;
+    if(!list.length&&idx>0)return;
+    var totalSofi=0,totalGuille=0,totalMes=0;
+    var deudasExternas={};
     var porTarjeta={};
     TARJETAS.forEach(function(t){porTarjeta[t]={total:0,sofi:0,guille:0};});
-
     list.forEach(function(e){
       var pt=porTarjeta[e.tarjeta];
       if(!pt)return;
-      pt.total+=e.importe;
-      totalMes+=e.importe;
-      if(e.compartido==='Si'){
+      pt.total+=e.importe;totalMes+=e.importe;
+      if(e.tipoGasto==='suscripcion'&&e.subsKey&&SUSCRIPCIONES[e.subsKey]){
+        var s=SUSCRIPCIONES[e.subsKey];
+        var cuota=e.importe/s.total;
+        pt.sofi+=cuota;totalSofi+=cuota;
+        if(s.personas.indexOf('Guille')>=0){pt.guille+=cuota;totalGuille+=cuota;}
+        s.personas.forEach(function(p){
+          if(p!=='Sofi'&&p!=='Guille') deudasExternas[p]=(deudasExternas[p]||0)+cuota;
+        });
+      } else if(e.tipoGasto==='compartido'){
         pt.sofi+=e.montSofi;pt.guille+=e.montGuille;
         totalSofi+=e.montSofi;totalGuille+=e.montGuille;
       } else {
@@ -457,26 +497,26 @@ function renderRes(){
         else{pt.guille+=e.importe;totalGuille+=e.importe;}
       }
     });
-
-    var esActual = idx===0;
+    var esActual=idx===0;
     h+='<div class="mes-card">';
     h+='<div class="mes-header"><span class="mes-titulo">'+(esActual?'📅 ':'')+mes.label+(esActual?' (actual)':'')+'</span><span class="mes-total">'+ars(totalMes)+'</span></div>';
     h+='<div class="mes-row"><span class="mes-label">Le toca a Sofi</span><span class="mes-val sofi">'+ars(totalSofi)+'</span></div>';
     h+='<div class="mes-row"><span class="mes-label">Le toca a Guille</span><span class="mes-val guille">'+ars(totalGuille)+'</span></div>';
-
     var tarjetasConGasto=TARJETAS.filter(function(t){return porTarjeta[t]&&porTarjeta[t].total>0;});
     if(tarjetasConGasto.length){
       h+='<div style="margin-top:8px;padding-top:8px;border-top:0.5px solid #F0EDE6;">';
-      tarjetasConGasto.forEach(function(t){
-        var pt=porTarjeta[t];
-        h+='<div class="mes-row"><span class="mes-label">'+t+'</span><span class="mes-val">'+ars(pt.total)+'</span></div>';
-      });
+      tarjetasConGasto.forEach(function(t){h+='<div class="mes-row"><span class="mes-label">'+t+'</span><span class="mes-val">'+ars(porTarjeta[t].total)+'</span></div>';});
       h+='</div>';
     }
     h+='</div>';
+    if(Object.keys(deudasExternas).length){
+      var totalDeudas=Object.keys(deudasExternas).reduce(function(a,k){return a+deudasExternas[k];},0);
+      h+='<div class="deudas-card"><div class="deudas-titulo">💰 Te tienen que dar — '+mes.label+'</div>';
+      Object.keys(deudasExternas).forEach(function(p){h+='<div class="deuda-row"><span class="deuda-nombre">'+p+'</span><span class="deuda-monto">'+ars(deudasExternas[p])+'</span></div>';});
+      h+='<div class="deuda-row"><span class="deuda-nombre" style="font-weight:700;">Total</span><span class="deuda-monto">'+ars(totalDeudas)+'</span></div></div>';
+    }
   });
-
-  document.getElementById('rcontent').innerHTML = h || '<div class="empty">Sin registros cargados</div>';
+  document.getElementById('rcontent').innerHTML=h||'<div class="empty">Sin registros cargados</div>';
 }
 
 function delEntry(id){
