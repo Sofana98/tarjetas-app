@@ -6,20 +6,36 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Tarjetas S&G">
-<title>Tarjetas Sofi & Guille</title>
+<title>Tarjetas S&G</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 html { font-size: 16px; }
 body { background: #F5F4F0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #1A1916; min-height: 100vh; }
 .app { max-width: 430px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; }
+
+/* LOGIN */
+.login-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 32px 24px; }
+.login-title { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 6px; }
+.login-sub { font-size: 15px; color: #888; margin-bottom: 48px; }
+.login-btns { display: flex; flex-direction: column; gap: 14px; width: 100%; }
+.login-btn { width: 100%; padding: 18px; border: 1.5px solid #E0DDD6; border-radius: 14px; font-size: 18px; font-weight: 700; cursor: pointer; background: #fff; font-family: inherit; text-align: center; touch-action: manipulation; transition: all 0.15s; }
+.login-btn.sofi { border-color: #F0B8CB; color: #C9406A; background: #FDF0F4; }
+.login-btn.guille { border-color: #BFDBFE; color: #2563EB; background: #EFF6FF; }
+
+/* HEADER */
 .header { background: #fff; border-bottom: 1px solid #E8E4DC; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 20; }
+.header-left { display: flex; flex-direction: column; }
 .header-title { font-size: 17px; font-weight: 700; letter-spacing: -0.3px; }
-.header-sub { font-size: 12px; color: #888; margin-top: 1px; }
+.header-user { font-size: 12px; margin-top: 1px; font-weight: 600; }
+.header-user.sofi { color: #C9406A; }
+.header-user.guille { color: #2563EB; }
+.header-right { display: flex; align-items: center; gap: 8px; }
 .sync-pill { display: flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; padding: 5px 10px; border-radius: 20px; }
 .sync-pill.ok { background: #F0FDF4; color: #16A34A; border: 1px solid #BBF7D0; }
 .sync-pill.syncing { background: #FFFBEB; color: #D97706; border: 1px solid #FDE68A; }
 .sync-pill.error { background: #FEF2F2; color: #DC2626; border: 1px solid #FECACA; }
 .sync-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.switch-btn { font-size: 11px; font-weight: 600; padding: 5px 10px; border-radius: 20px; border: 1px solid #E0DDD6; background: #F5F4F0; color: #888; cursor: pointer; touch-action: manipulation; }
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
 .blink { animation: blink 1s infinite; }
 .tabs { display: grid; grid-template-columns: 1fr 1fr 1fr; background: #fff; border-bottom: 1px solid #E8E4DC; position: sticky; top: 61px; z-index: 19; }
@@ -62,6 +78,8 @@ body { background: #F5F4F0; font-family: -apple-system, BlinkMacSystemFont, 'Seg
 .b-cuota { background: #FFF7ED; color: #C2410C; }
 .b-comp { background: #F0FDF4; color: #16A34A; }
 .b-subs { background: #F5F3FF; color: #6D28D9; }
+.b-sofi { background: #FDF0F4; color: #C9406A; }
+.b-guille { background: #EFF6FF; color: #2563EB; }
 .edate { font-size: 11px; color: #aaa; }
 .empty { text-align: center; padding: 40px 20px; color: #aaa; font-size: 14px; }
 .lmsg { text-align: center; padding: 32px; color: #aaa; font-size: 14px; }
@@ -86,15 +104,30 @@ body { background: #F5F4F0; font-family: -apple-system, BlinkMacSystemFont, 'Seg
 </style>
 </head>
 <body>
-<div class="app">
+
+<!-- LOGIN -->
+<div id="login-screen" class="login-screen">
+  <div class="login-title">\ud83d\udcb3 Tarjetas S&G</div>
+  <div class="login-sub">\u00bfQui\u00e9n sos?</div>
+  <div class="login-btns">
+    <button class="login-btn sofi" onclick="setUsuario('Sofi')">Sofi</button>
+    <button class="login-btn guille" onclick="setUsuario('Guille')">Guille</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="main-app" class="app" style="display:none">
   <div class="header">
-    <div>
-      <div class="header-title">Tarjetas Sofi & Guille</div>
-      <div class="header-sub" id="hdate"></div>
+    <div class="header-left">
+      <div class="header-title">Tarjetas S&G</div>
+      <div class="header-user" id="header-user"></div>
     </div>
-    <div class="sync-pill syncing" id="spill">
-      <div class="sync-dot blink" id="sdot"></div>
-      <span id="stxt">Conectando</span>
+    <div class="header-right">
+      <div class="sync-pill syncing" id="spill">
+        <div class="sync-dot blink" id="sdot"></div>
+        <span id="stxt">Conectando</span>
+      </div>
+      <button class="switch-btn" onclick="cambiarUsuario()">Cambiar</button>
     </div>
   </div>
   <div class="tabs">
@@ -104,17 +137,11 @@ body { background: #F5F4F0; font-family: -apple-system, BlinkMacSystemFont, 'Seg
   </div>
   <div class="content">
     <div id="tab-cargar" class="section active">
-      <div id="edit-banner" class="edit-banner" style="display:none">✏️ Editando — modificá los campos y guardá</div>
+      <div id="edit-banner" class="edit-banner" style="display:none">\u270f\ufe0f Editando \u2014 modific\u00e1 los campos y guard\u00e1</div>
       <div class="card">
         <div class="field">
           <label>Tarjeta</label>
-          <select id="tarjeta">
-            <option value="MACRO Sofi">MACRO Sofi</option>
-            <option value="NARANJA Sofi">NARANJA Sofi</option>
-            <option value="BBVA Guille">BBVA Guille</option>
-            <option value="MACRO Guille">MACRO Guille</option>
-            <option value="MERCADO PAGO Guille">MERCADO PAGO Guille</option>
-          </select>
+          <select id="tarjeta"></select>
         </div>
         <div class="field">
           <label>Fecha primera cuota</label>
@@ -150,24 +177,24 @@ body { background: #F5F4F0; font-family: -apple-system, BlinkMacSystemFont, 'Seg
         <div class="field">
           <label>Tipo de gasto</label>
           <div class="toggle-row">
-            <button type="button" class="tb sel" data-group="tipo" data-val="propio">Solo mío</button>
-            <button type="button" class="tb" data-group="tipo" data-val="compartido"Compartido</button>
-            <button type="button" class="tb" data-group="tipo" data-val="suscripcion">Suscripción</button>
+            <button type="button" class="tb sel" data-group="tipo" data-val="propio">Solo m\u00edo</button>
+            <button type="button" class="tb" data-group="tipo" data-val="compartido">Compartido</button>
+            <button type="button" class="tb" data-group="tipo" data-val="suscripcion">Suscripci\u00f3n</button>
           </div>
         </div>
         <div class="field" id="comp-field" style="display:none">
-          <label>¿Cuánto paga cada uno por cuota?</label>
+          <label>\u00bfCu\u00e1nto paga cada uno por cuota?</label>
           <div class="porc-row">
-            <span class="porc-label" style="color:#C9406A;">Sofi $</span>
+            <span class="porc-label" style="color:#C9406A;" id="label-sofi">Sofi $</span>
             <input type="number" id="porc-sofi" placeholder="0" inputmode="decimal" min="0" />
           </div>
           <div class="porc-row">
-            <span class="porc-label" style="color:#2563EB;">Guille $</span>
+            <span class="porc-label" style="color:#2563EB;" id="label-guille">Guille $</span>
             <input type="number" id="porc-guille" placeholder="0" inputmode="decimal" min="0" />
           </div>
         </div>
         <div class="field" id="subs-field" style="display:none">
-          <label>Suscripción</label>
+          <label>Suscripci\u00f3n</label>
           <select id="subs-tipo" onchange="updateSubsInfo()">
             <option value="prime">Prime Video (Sofi, Guille, Santi)</option>
             <option value="youtube">YouTube (Sofi, Guille, Santi, Pablo, Alicia, Fran)</option>
@@ -176,7 +203,7 @@ body { background: #F5F4F0; font-family: -apple-system, BlinkMacSystemFont, 'Seg
         </div>
       </div>
       <button type="button" class="save-btn" id="savebtn">Guardar</button>
-      <button type="button" class="cancel-btn" id="cancelbtn" style="display:none">Cancelar edición</button>
+      <button type="button" class="cancel-btn" id="cancelbtn" style="display:none">Cancelar edici\u00f3n</button>
     </div>
     <div id="tab-historial" class="section">
       <div class="month-sel"><select id="hmes"></select></div>
@@ -188,348 +215,277 @@ body { background: #F5F4F0; font-family: -apple-system, BlinkMacSystemFont, 'Seg
   </div>
 </div>
 <div class="toast" id="toast"></div>
+
 <script>
 var SCRIPT='https://script.google.com/macros/s/AKfycbyGnm9bFTNzN3HJ2idbBZrl2WRspNGUEpAp6nv-UcPyA8DuiP-S9kGAzcgAwlv-b8T_/exec';
 var CSV_BASE='https://docs.google.com/spreadsheets/d/e/2PACX-1vRjyeOsp51j38139qyFqtud031CxFCjf4P3kkYyzh8LBRQUpciVwOucShA9KZD58M0tva_v7_DOoy27/pub?single=true&output=csv&gid=1577857723';
-var TARJETAS=['MACRO Sofi','NARANJA Sofi','BBVA Guille','MACRO Guille','MERCADO PAGO Guille'];
+
+var TARJETAS_SOFI=['MACRO Sofi','NARANJA Sofi'];
+var TARJETAS_GUILLE=['BBVA Guille','MACRO Guille','MERCADO PAGO Guille'];
+var TODAS_TARJETAS=['MACRO Sofi','NARANJA Sofi','BBVA Guille','MACRO Guille','MERCADO PAGO Guille'];
 var MESES=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
 var SUSCRIPCIONES={
   prime:{nombre:'Prime Video',personas:['Sofi','Guille','Santi'],total:3},
   youtube:{nombre:'YouTube',personas:['Sofi','Guille','Santi','Pablo','Alicia','Fran'],total:6}
 };
+
+var usuario=null;
 var state={tipo:'propio'};
 var entries=[];
 var editingId=null;
 
-function todayStr(){
-  var d=new Date();
-  return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);
-}
-function currentMonthKey(){
-  var d=new Date();
-  return d.getFullYear()+'-'+d.getMonth();
-}
-function sync(s){
-  var p=document.getElementById('spill'),d=document.getElementById('sdot'),t=document.getElementById('stxt');
-  p.className='sync-pill '+s;
-  d.className='sync-dot'+(s==='syncing'?' blink':'');
-  t.textContent=s==='ok'?'Sincronizado':s==='syncing'?'Sincronizando':'Sin conexión';
-}
-function toast(msg){
-  var el=document.getElementById('toast');
-  el.textContent=msg;el.classList.add('show');
-  setTimeout(function(){el.classList.remove('show');},2500);
-}
-function parseCSV(text){
-  var lines=text.trim().split('\n');
-  return lines.map(function(line){
-    var result=[],cur='',inQ=false;
-    for(var i=0;i<line.length;i++){
-      var c=line[i];
-      if(c==='"'){inQ=!inQ;}
-      else if(c===','&&!inQ){result.push(cur.trim());cur='';}
-      else{cur+=c;}
-    }
-    result.push(cur.trim());
-    return result;
-  });
-}
-function load(cb){
-  sync('syncing');
-  fetch(CSV_BASE+'&t='+Date.now())
-    .then(function(r){return r.text();})
-    .then(function(text){
-      var rows=parseCSV(text);
-      entries=rows.map(function(r){
-        return {
-          id:String(r[0]),fecha:r[1],tarjeta:r[2],detalle:r[3],
-          importe:parseFloat(r[4])||0,cuotas:parseInt(r[5])||1,
-          cuotaActual:parseInt(r[6])||1,compartido:r[7],
-          montSofi:parseFloat(r[8])||0,montGuille:parseFloat(r[9])||0,
-          tipoGasto:r[10]||'propio',subsKey:r[11]||''
-        };
-      }).filter(function(e){return e.detalle&&e.detalle.length>0;});
-      sync('ok');fillMonths();if(cb)cb();
-    })
-    .catch(function(){sync('error');toast('Sin conexión');if(cb)cb();});
-}
-function post(body,cb){
-  body.hoja='tarjetas';
-  sync('syncing');
-  fetch(SCRIPT,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(body)})
-    .then(function(r){return r.text();})
-    .then(function(){sync('ok');if(cb)cb(true);})
-    .catch(function(){sync('error');if(cb)cb(false);});
-}
+function setUsuario(u){
+  usuario=u;
+  localStorage.setItem('tarjetas_usuario',u);
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('main-app').style.display='flex';
+  var hu=document.getElementById('header-user');
+  hu.textContent='Hola, '+u+' \ud83d\udc4b';
+  hu.className='header-user '+u.toLowerCase();
+  initTarjetas();
+  <!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Tarjetas S&G">
+<title>Tarjetas S&G</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html { font-size: 16px; }
+body { background: #F5F4F0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #1A1916; min-height: 100vh; }
+.app { max-width: 430px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; }
 
-function updateSubsInfo(){
-  var key=document.getElementById('subs-tipo').value;
-  var s=SUSCRIPCIONES[key];
-  var imp=parseFloat(document.getElementById('importe').value)||0;
-  var cuota=imp>0?imp/s.total:0;
-  var externos=s.personas.filter(function(p){return p!=='Sofi'&&p!=='Guille';});
-  var info='Se divide entre '+s.total+' personas: '+s.personas.join(', ')+'.<br>';
-  if(imp>0){
-    info+='Le toca a cada uno: <strong>'+ars(cuota)+'</strong>';
-    if(externos.length) info+='<br>Te deben dar: '+externos.map(function(p){return p+' '+ars(cuota);}).join(', ');
-  }
-  document.getElementById('subs-info').innerHTML=info;
-}
+/* LOGIN */
+.login-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 32px 24px; }
+.login-title { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 6px; }
+.login-sub { font-size: 15px; color: #888; margin-bottom: 48px; }
+.login-btns { display: flex; flex-direction: column; gap: 14px; width: 100%; }
+.login-btn { width: 100%; padding: 18px; border: 1.5px solid #E0DDD6; border-radius: 14px; font-size: 18px; font-weight: 700; cursor: pointer; background: #fff; font-family: inherit; text-align: center; touch-action: manipulation; transition: all 0.15s; }
+.login-btn.sofi { border-color: #F0B8CB; color: #C9406A; background: #FDF0F4; }
+.login-btn.guille { border-color: #BFDBFE; color: #2563EB; background: #EFF6FF; }
 
-document.getElementById('importe').addEventListener('input',function(){
-  if(state.tipo==='suscripcion') updateSubsInfo();
-});
+/* HEADER */
+.header { background: #fff; border-bottom: 1px solid #E8E4DC; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 20; }
+.header-left { display: flex; flex-direction: column; }
+.header-title { font-size: 17px; font-weight: 700; letter-spacing: -0.3px; }
+.header-user { font-size: 12px; margin-top: 1px; font-weight: 600; }
+.header-user.sofi { color: #C9406A; }
+.header-user.guille { color: #2563EB; }
+.header-right { display: flex; align-items: center; gap: 8px; }
+.sync-pill { display: flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; padding: 5px 10px; border-radius: 20px; }
+.sync-pill.ok { background: #F0FDF4; color: #16A34A; border: 1px solid #BBF7D0; }
+.sync-pill.syncing { background: #FFFBEB; color: #D97706; border: 1px solid #FDE68A; }
+.sync-pill.error { background: #FEF2F2; color: #DC2626; border: 1px solid #FECACA; }
+.sync-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.switch-btn { font-size: 11px; font-weight: 600; padding: 5px 10px; border-radius: 20px; border: 1px solid #E0DDD6; background: #F5F4F0; color: #888; cursor: pointer; touch-action: manipulation; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.blink { animation: blink 1s infinite; }
+.tabs { display: grid; grid-template-columns: 1fr 1fr 1fr; background: #fff; border-bottom: 1px solid #E8E4DC; position: sticky; top: 61px; z-index: 19; }
+.tab { padding: 13px 8px; text-align: center; font-size: 14px; font-weight: 500; color: #888; cursor: pointer; border-bottom: 2px solid transparent; }
+.tab.active { color: #1A1916; border-bottom-color: #1A1916; }
+.content { flex: 1; }
+.section { display: none; padding: 14px 14px 80px; }
+.section.active { display: block; }
+.card { background: #fff; border: 1px solid #E8E4DC; border-radius: 14px; padding: 16px; margin-bottom: 12px; }
+.field { margin-bottom: 15px; }
+.field:last-child { margin-bottom: 0; }
+.field > label { display: block; font-size: 11px; font-weight: 700; color: #888; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.07em; }
+.field input[type=text], .field input[type=number], .field input[type=date], .field select { width: 100%; font-size: 16px; color: #1A1916; background: #F5F4F0; border: 1px solid #E0DDD6; border-radius: 10px; padding: 11px 13px; font-family: inherit; outline: none; -webkit-appearance: none; appearance: none; }
+.field input:focus, .field select:focus { border-color: #1A1916; background: #fff; }
+.porc-row { display: flex; gap: 10px; align-items: center; margin-bottom: 8px; }
+.porc-row:last-child { margin-bottom: 0; }
+.porc-row input { flex: 1; }
+.porc-label { font-size: 14px; font-weight: 600; white-space: nowrap; min-width: 60px; }
+.toggle-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.tb { flex: 1; min-width: 70px; padding: 12px 8px; border: 1.5px solid #E0DDD6; border-radius: 10px; font-size: 14px; font-weight: 500; cursor: pointer; background: #F5F4F0; color: #888; font-family: inherit; text-align: center; -webkit-appearance: none; appearance: none; touch-action: manipulation; }
+.tb.sel { background: #fff; border-color: #1A1916; color: #1A1916; }
+.save-btn { width: 100%; padding: 15px; background: #1A1916; color: #fff; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; font-family: inherit; margin-top: 4px; -webkit-appearance: none; touch-action: manipulation; }
+.save-btn:disabled { opacity: 0.45; }
+.cancel-btn { width: 100%; padding: 13px; background: transparent; color: #888; border: 1px solid #E0DDD6; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; margin-top: 8px; touch-action: manipulation; }
+.edit-banner { background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 10px; padding: 10px 14px; margin-bottom: 12px; font-size: 13px; color: #2563EB; font-weight: 600; }
+.subs-info { background: #F5F3FF; border: 1px solid #DDD6FE; border-radius: 10px; padding: 10px 14px; margin-top: 8px; font-size: 13px; color: #6D28D9; line-height: 1.6; }
+.month-sel { margin-bottom: 12px; }
+.month-sel select { width: 100%; font-size: 15px; background: #fff; border: 1px solid #E8E4DC; border-radius: 10px; padding: 10px 13px; font-family: inherit; -webkit-appearance: none; appearance: none; color: #1A1916; outline: none; }
+.entry { padding: 12px 0; border-bottom: 1px solid #F0EDE6; }
+.entry:last-child { border-bottom: none; }
+.entry-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+.entry-name { font-size: 15px; font-weight: 600; color: #1A1916; }
+.entry-sub { font-size: 12px; color: #888; margin-top: 2px; }
+.entry-right { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+.entry-amount { font-size: 16px; font-weight: 700; color: #DC2626; }
+.edit-btn { background: none; border: none; color: #aaa; cursor: pointer; font-size: 15px; padding: 4px 5px; touch-action: manipulation; }
+.del-btn { background: none; border: none; color: #ccc; cursor: pointer; font-size: 16px; padding: 4px 5px; touch-action: manipulation; }
+.entry-meta { display: flex; gap: 5px; margin-top: 7px; flex-wrap: wrap; align-items: center; }
+.badge { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 20px; }
+.b-cuota { background: #FFF7ED; color: #C2410C; }
+.b-comp { background: #F0FDF4; color: #16A34A; }
+.b-subs { background: #F5F3FF; color: #6D28D9; }
+.b-sofi { background: #FDF0F4; color: #C9406A; }
+.b-guille { background: #EFF6FF; color: #2563EB; }
+.edate { font-size: 11px; color: #aaa; }
+.empty { text-align: center; padding: 40px 20px; color: #aaa; font-size: 14px; }
+.lmsg { text-align: center; padding: 32px; color: #aaa; font-size: 14px; }
+.mes-card { background: #fff; border: 1px solid #E8E4DC; border-radius: 14px; padding: 14px 16px; margin-bottom: 10px; }
+.mes-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.mes-titulo { font-size: 15px; font-weight: 700; color: #1A1916; }
+.mes-total { font-size: 15px; font-weight: 700; color: #DC2626; }
+.mes-row { display: flex; justify-content: space-between; font-size: 13px; padding: 4px 0; border-bottom: 0.5px solid #F0EDE6; }
+.mes-row:last-child { border-bottom: none; }
+.mes-label { color: #888; }
+.mes-val { font-weight: 600; }
+.mes-val.sofi { color: #C9406A; }
+.mes-val.guille { color: #2563EB; }
+.deudas-card { background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 14px; padding: 14px 16px; margin-bottom: 10px; }
+.deudas-titulo { font-size: 13px; font-weight: 700; color: #92400E; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+.deuda-row { display: flex; justify-content: space-between; font-size: 13px; padding: 4px 0; border-bottom: 0.5px solid #FEF3C7; }
+.deuda-row:last-child { border-bottom: none; }
+.deuda-nombre { color: #78350F; }
+.deuda-monto { font-weight: 700; color: #B45309; }
+.toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%); background: #1A1916; color: #fff; padding: 12px 22px; border-radius: 10px; font-size: 14px; font-weight: 600; opacity: 0; transition: opacity 0.2s; pointer-events: none; z-index: 999; white-space: nowrap; max-width: 88vw; }
+.toast.show { opacity: 1; }
+</style>
+</head>
+<body>
 
-function handleToggle(btn){
-  var group=btn.getAttribute('data-group');
-  var val=btn.getAttribute('data-val');
-  btn.closest('.toggle-row').querySelectorAll('[data-group]').forEach(function(b){b.classList.remove('sel');});
-  btn.classList.add('sel');
-  state[group]=val;
-  if(group==='tipo'){
-    document.getElementById('comp-field').style.display=val==='compartido'?'':'none';
-    document.getElementById('subs-field').style.display=val==='suscripcion'?'':'none';
-    if(val==='suscripcion') updateSubsInfo();
-  }
-}
-document.addEventListener('click',function(e){
-  var btn=e.target.closest('[data-group]');
-  if(btn) handleToggle(btn);
-});
-document.getElementById('tbtn-cargar').addEventListener('click',function(){showTab('cargar');});
-document.getElementById('tbtn-historial').addEventListener('click',function(){showTab('historial');});
-document.getElementById('tbtn-resumen').addEventListener('click',function(){showTab('resumen');});
-document.getElementById('hmes').addEventListener('change',renderHist);
+<!-- LOGIN -->
+<div id="login-screen" class="login-screen">
+  <div class="login-title">\ud83d\udcb3 Tarjetas S&G</div>
+  <div class="login-sub">\u00bfQui\u00e9n sos?</div>
+  <div class="login-btns">
+    <button class="login-btn sofi" onclick="setUsuario('Sofi')">Sofi</button>
+    <button class="login-btn guille" onclick="setUsuario('Guille')">Guille</button>
+  </div>
+</div>
 
-function showTab(t){
-  ['cargar','historial','resumen'].forEach(function(n){
-    document.getElementById('tab-'+n).classList.toggle('active',n===t);
-    document.getElementById('tbtn-'+n).classList.toggle('active',n===t);
-  });
-  if(t==='historial')load(renderHist);
-  if(t==='resumen')load(renderRes);
-}
-function mk(f){
-  var d=new Date(f);
-  if(isNaN(d.getTime()))return '';
-  return d.getFullYear()+'-'+d.getMonth();
-}
-function ars(n){return '$'+Math.round(n).toLocaleString('es-AR');}
+<!-- APP -->
+<div id="main-app" class="app" style="display:none">
+  <div class="header">
+    <div class="header-left">
+      <div class="header-title">Tarjetas S&G</div>
+      <div class="header-user" id="header-user"></div>
+    </div>
+    <div class="header-right">
+      <div class="sync-pill syncing" id="spill">
+        <div class="sync-dot blink" id="sdot"></div>
+        <span id="stxt">Conectando</span>
+      </div>
+      <button class="switch-btn" onclick="cambiarUsuario()">Cambiar</button>
+    </div>
+  </div>
+  <div class="tabs">
+    <div class="tab active" id="tbtn-cargar">Cargar</div>
+    <div class="tab" id="tbtn-historial">Historial</div>
+    <div class="tab" id="tbtn-resumen">Resumen</div>
+  </div>
+  <div class="content">
+    <div id="tab-cargar" class="section active">
+      <div id="edit-banner" class="edit-banner" style="display:none">\u270f\ufe0f Editando \u2014 modific\u00e1 los campos y guard\u00e1</div>
+      <div class="card">
+        <div class="field">
+          <label>Tarjeta</label>
+          <select id="tarjeta"></select>
+        </div>
+        <div class="field">
+          <label>Fecha primera cuota</label>
+          <input type="date" id="fecha" />
+        </div>
+        <div class="field">
+          <label>Detalle</label>
+          <input type="text" id="detalle" placeholder="Ej: Netflix, ropa, supermercado..." autocomplete="off" />
+        </div>
+        <div class="field">
+          <label>Importe por cuota ($)</label>
+          <input type="number" id="importe" placeholder="0" inputmode="decimal" min="0" />
+        </div>
+        <div class="field">
+          <label>Cuotas restantes</label>
+          <select id="cuotas">
+            <option value="1">1 cuota (contado)</option>
+            <option value="2">2 cuotas</option>
+            <option value="3">3 cuotas</option>
+            <option value="4">4 cuotas</option>
+            <option value="5">5 cuotas</option>
+            <option value="6">6 cuotas</option>
+            <option value="7">7 cuotas</option>
+            <option value="8">8 cuotas</option>
+            <option value="9">9 cuotas</option>
+            <option value="10">10 cuotas</option>
+            <option value="11">11 cuotas</option>
+            <option value="12">12 cuotas</option>
+            <option value="18">18 cuotas</option>
+            <option value="24">24 cuotas</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Tipo de gasto</label>
+          <div class="toggle-row">
+            <button type="button" class="tb sel" data-group="tipo" data-val="propio">Solo m\u00edo</button>
+            <button type="button" class="tb" data-group="tipo" data-val="compartido">Compartido</button>
+            <button type="button" class="tb" data-group="tipo" data-val="suscripcion">Suscripci\u00f3n</button>
+          </div>
+        </div>
+        <div class="field" id="comp-field" style="display:none">
+          <label>\u00bfCu\u00e1nto paga cada uno por cuota?</label>
+          <div class="porc-row">
+            <span class="porc-label" style="color:#C9406A;" id="label-sofi">Sofi $</span>
+            <input type="number" id="porc-sofi" placeholder="0" inputmode="decimal" min="0" />
+          </div>
+          <div class="porc-row">
+            <span class="porc-label" style="color:#2563EB;" id="label-guille">Guille $</span>
+            <input type="number" id="porc-guille" placeholder="0" inputmode="decimal" min="0" />
+          </div>
+        </div>
+        <div class="field" id="subs-field" style="display:none">
+          <label>Suscripci\u00f3n</label>
+          <select id="subs-tipo" onchange="updateSubsInfo()">
+            <option value="prime">Prime Video (Sofi, Guille, Santi)</option>
+            <option value="youtube">YouTube (Sofi, Guille, Santi, Pablo, Alicia, Fran)</option>
+          </select>
+          <div class="subs-info" id="subs-info"></div>
+        </div>
+      </div>
+      <button type="button" class="save-btn" id="savebtn">Guardar</button>
+      <button type="button" class="cancel-btn" id="cancelbtn" style="display:none">Cancelar edici\u00f3n</button>
+    </div>
+    <div id="tab-historial" class="section">
+      <div class="month-sel"><select id="hmes"></select></div>
+      <div class="card" id="hlist"><div class="lmsg">Cargando...</div></div>
+    </div>
+    <div id="tab-resumen" class="section">
+      <div id="rcontent"><div class="lmsg">Cargando...</div></div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
 
-function fillMonths(){
-  var keys=[];
-  entries.forEach(function(e){var k=mk(e.fecha);if(k&&keys.indexOf(k)<0)keys.push(k);});
-  keys.sort().reverse();
-  var cur=currentMonthKey();
-  if(keys.indexOf(cur)<0)keys.unshift(cur);
-  // Poner el mes actual primero
-  var idx=keys.indexOf(cur);
-  if(idx>0){keys.splice(idx,1);keys.unshift(cur);}
-  var opts=keys.map(function(k){var p=k.split('-');return '<option value="'+k+'">'+MESES[+p[1]]+' '+p[0]+'</option>';}).join('');
-  document.getElementById('hmes').innerHTML=opts;
-  // Seleccionar mes actual
-  document.getElementById('hmes').value=cur;
-}
+<script>
+var SCRIPT='https://script.google.com/macros/s/AKfycbyGnm9bFTNzN3HJ2idbBZrl2WRspNGUEpAp6nv-UcPyA8DuiP-S9kGAzcgAwlv-b8T_/exec';
+var CSV_BASE='https://docs.google.com/spreadsheets/d/e/2PACX-1vRjyeOsp51j38139qyFqtud031CxFCjf4P3kkYyzh8LBRQUpciVwOucShA9KZD58M0tva_v7_DOoy27/pub?single=true&output=csv&gid=1577857723';
 
-function resetForm(){
-  editingId=null;
-  document.getElementById('edit-banner').style.display='none';
-  document.getElementById('savebtn').textContent='Guardar';
-  document.getElementById('cancelbtn').style.display='none';
-  document.getElementById('detalle').value='';
-  document.getElementById('importe').value='';
-  document.getElementById('fecha').value=todayStr();
-  document.getElementById('cuotas').value='1';
-  document.getElementById('porc-sofi').value='';
-  document.getElementById('porc-guille').value='';
-  document.getElementById('comp-field').style.display='none';
-  document.getElementById('subs-field').style.display='none';
-  state.tipo='propio';
-  document.querySelectorAll('[data-group="tipo"]').forEach(function(b){b.classList.remove('sel');});
-  document.querySelector('[data-group="tipo"][data-val="propio"]').classList.add('sel');
-}
-document.getElementById('cancelbtn').addEventListener('click',resetForm);
+var TARJETAS_SOFI=['MACRO Sofi','NARANJA Sofi'];
+var TARJETAS_GUILLE=['BBVA Guille','MACRO Guille','MERCADO PAGO Guille'];
+var TODAS_TARJETAS=['MACRO Sofi','NARANJA Sofi','BBVA Guille','MACRO Guille','MERCADO PAGO Guille'];
+var MESES=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+var SUSCRIPCIONES={
+  prime:{nombre:'Prime Video',personas:['Sofi','Guille','Santi'],total:3},
+  youtube:{nombre:'YouTube',personas:['Sofi','Guille','Santi','Pablo','Alicia','Fran'],total:6}
+};
 
-document.getElementById('savebtn').addEventListener('click',function(){
-  var imp=parseFloat(document.getElementById('importe').value);
-  if(!imp||imp<=0){toast('Ingresá un importe válido');return;}
-  var det=document.getElementById('detalle').value.trim();
-  if(!det){toast('Ingresá un detalle');return;}
-  var fechaVal=document.getElementById('fecha').value;
-  if(!fechaVal){toast('Ingresá una fecha');return;}
-  var cuotas=parseInt(document.getElementById('cuotas').value)||1;
-  var mSofi=0,mGuille=0,subsKey='';
+var usuario=null;
+var state={tipo:'propio'};
+var entries=[];
+var editingId=null;
 
-  if(state.tipo==='compartido'){
-    mSofi=parseFloat(document.getElementById('porc-sofi').value)||0;
-    mGuille=parseFloat(document.getElementById('porc-guille').value)||0;
-    if(mSofi+mGuille<=0){toast('Ingresá cuánto paga cada uno');return;}
-  } else if(state.tipo==='suscripcion'){
-    subsKey=document.getElementById('subs-tipo').value;
-    var s=SUSCRIPCIONES[subsKey];
-    var cuota=imp/s.total;
-    mSofi=cuota;
-    mGuille=s.personas.indexOf('Guille')>=0?cuota:0;
-  } else {
-    var esSofi=document.getElementById('tarjeta').value.indexOf('Sofi')>=0;
-    mSofi=esSofi?imp:0;
-    mGuille=esSofi?0:imp;
-  }
-
-  var tarjeta=document.getElementById('tarjeta').value;
-  var btn=document.getElementById('savebtn');
-  btn.disabled=true;btn.textContent='Guardando...';
-  var baseId=editingId||Date.now()+'';
-  var fechaBase=new Date(fechaVal+'T12:00:00');
-  var saved=0;
-
-  function saveNext(){
-    if(saved>=cuotas){
-      btn.disabled=false;btn.textContent='Guardar';
-      toast(cuotas>1?'¡'+cuotas+' cuotas guardadas!':'¡Guardado!');
-      resetForm();
-      setTimeout(function(){load();},2000);
-      return;
-    }
-    var fechaCuota=new Date(fechaBase);
-    fechaCuota.setMonth(fechaCuota.getMonth()+saved);
-    var body={
-      action:saved===0&&editingId?'edit':'add',
-      id:saved===0?baseId:(baseId+'_c'+(saved+1)),
-      fecha:fechaCuota.toISOString(),
-      tarjeta:tarjeta,
-      detalle:cuotas>1?det+' ('+(saved+1)+'/'+cuotas+')':det,
-      importe:imp,cuotas:cuotas,cuotaActual:saved+1,
-      compartido:state.tipo==='compartido'?'Si':'No',
-      porcentajeSofi:mSofi,porcentajeGuille:mGuille,
-      tipoGasto:state.tipo,subsKey:subsKey
-    };
-    post(body,function(ok){
-      if(ok){saved++;saveNext();}
-      else{btn.disabled=false;btn.textContent='Guardar';toast('Error al guardar');}
-    });
-  }
-  saveNext();
-});
-
-function editEntry(id){
-  var e=null;
-  for(var i=0;i<entries.length;i++){if(entries[i].id===id){e=entries[i];break;}}
-  if(!e)return;
-  editingId=id;showTab('cargar');
-  document.getElementById('edit-banner').style.display='';
-  document.getElementById('savebtn').textContent='Guardar cambios';
-  document.getElementById('cancelbtn').style.display='';
-  var tarEl=document.getElementById('tarjeta');
-  for(var t=0;t<tarEl.options.length;t++){if(tarEl.options[t].value===e.tarjeta){tarEl.selectedIndex=t;break;}}
-  var d=new Date(e.fecha);
-  if(!isNaN(d.getTime())){document.getElementById('fecha').value=d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);}
-  document.getElementById('detalle').value=e.detalle;
-  document.getElementById('importe').value=e.importe;
-  document.getElementById('cuotas').value=e.cuotas;
-  state.tipo=e.tipoGasto||'propio';
-  document.querySelectorAll('[data-group="tipo"]').forEach(function(b){b.classList.remove('sel');});
-  var tb=document.querySelector('[data-group="tipo"][data-val="'+state.tipo+'"]');
-  if(tb)tb.classList.add('sel');
-  document.getElementById('comp-field').style.display=state.tipo==='compartido'?'':'none';
-  document.getElementById('subs-field').style.display=state.tipo==='suscripcion'?'':'none';
-  document.getElementById('porc-sofi').value=e.montSofi||'';
-  document.getElementById('porc-guille').value=e.montGuille||'';
-  if(state.tipo==='suscripcion'&&e.subsKey){
-    var subEl=document.getElementById('subs-tipo');
-    for(var s=0;s<subEl.options.length;s++){if(subEl.options[s].value===e.subsKey){subEl.selectedIndex=s;break;}}
-    updateSubsInfo();
-  }
-  window.scrollTo(0,0);
-}
-
-function renderHist(){
-  var key=document.getElementById('hmes').value;
-  var list=entries.filter(function(e){return mk(e.fecha)===key;});
-  list.sort(function(a,b){return new Date(b.fecha)-new Date(a.fecha);});
-  var el=document.getElementById('hlist');
-  if(!list.length){el.innerHTML='<div class="empty">Sin registros este mes</div>';return;}
-  el.innerHTML=list.map(function(e){
-    var cuotaLabel=e.cuotas>1?'Cuota '+e.cuotaActual+'/'+e.cuotas:'Contado';
-    var extraBadge='';
-    if(e.tipoGasto==='compartido') extraBadge='<span class="badge b-comp">Sofi '+ars(e.montSofi)+' · Guille '+ars(e.montGuille)+'</span>';
-    if(e.tipoGasto==='suscripcion'&&e.subsKey&&SUSCRIPCIONES[e.subsKey]) extraBadge='<span class="badge b-subs">'+SUSCRIPCIONES[e.subsKey].nombre+'</span>';
-    return '<div class="entry"><div class="entry-top"><div style="min-width:0;flex:1;"><div class="entry-name">'+e.detalle+'</div><div class="entry-sub">'+e.tarjeta+'</div></div><div class="entry-right"><div class="entry-amount">'+ars(e.importe)+'</div><button type="button" class="edit-btn" data-id="'+e.id+'">✏️</button><button type="button" class="del-btn" data-id="'+e.id+'">✕</button></div></div><div class="entry-meta"><span class="badge b-cuota">'+cuotaLabel+'</span>'+extraBadge+'<span class="edate">'+new Date(e.fecha).toLocaleDateString('es-AR',{day:'numeric',month:'short'})+'</span></div></div>';
-  }).join('');
-  el.querySelectorAll('.edit-btn').forEach(function(b){b.addEventListener('click',function(){editEntry(this.getAttribute('data-id'));});});
-  el.querySelectorAll('.del-btn').forEach(function(b){b.addEventListener('click',function(){delEntry(this.getAttribute('data-id'));});});
-}
-
-function renderRes(){
-  if(!entries.length){document.getElementById('rcontent').innerHTML='<div class="empty">Sin registros cargados</div>';return;}
-  var now=new Date();
-  var meses=[];
-  for(var i=0;i<4;i++){
-    var d=new Date(now.getFullYear(),now.getMonth()+i,1);
-    meses.push({year:d.getFullYear(),month:d.getMonth(),key:d.getFullYear()+'-'+d.getMonth(),label:MESES[d.getMonth()]+' '+d.getFullYear()});
-  }
-  var h='';
-  meses.forEach(function(mes,idx){
-    var list=entries.filter(function(e){return mk(e.fecha)===mes.key;});
-    if(!list.length&&idx>0)return;
-    var totalSofi=0,totalGuille=0,totalMes=0;
-    var deudasExternas={};
-    var porTarjeta={};
-    TARJETAS.forEach(function(t){porTarjeta[t]={total:0,sofi:0,guille:0};});
-    list.forEach(function(e){
-      var pt=porTarjeta[e.tarjeta];
-      if(!pt)return;
-      pt.total+=e.importe;totalMes+=e.importe;
-      if(e.tipoGasto==='suscripcion'&&e.subsKey&&SUSCRIPCIONES[e.subsKey]){
-        var s=SUSCRIPCIONES[e.subsKey];
-        var cuota=e.importe/s.total;
-        pt.sofi+=cuota;totalSofi+=cuota;
-        if(s.personas.indexOf('Guille')>=0){pt.guille+=cuota;totalGuille+=cuota;}
-        s.personas.forEach(function(p){
-          if(p!=='Sofi'&&p!=='Guille') deudasExternas[p]=(deudasExternas[p]||0)+cuota;
-        });
-      } else if(e.tipoGasto==='compartido'){
-        pt.sofi+=e.montSofi;pt.guille+=e.montGuille;
-        totalSofi+=e.montSofi;totalGuille+=e.montGuille;
-      } else {
-        var esSofi=e.tarjeta.indexOf('Sofi')>=0;
-        if(esSofi){pt.sofi+=e.importe;totalSofi+=e.importe;}
-        else{pt.guille+=e.importe;totalGuille+=e.importe;}
-      }
-    });
-    var esActual=idx===0;
-    h+='<div class="mes-card">';
-    h+='<div class="mes-header"><span class="mes-titulo">'+(esActual?'📅 ':'')+mes.label+(esActual?' (actual)':'')+'</span><span class="mes-total">'+ars(totalMes)+'</span></div>';
-    h+='<div class="mes-row"><span class="mes-label">Le toca a Sofi</span><span class="mes-val sofi">'+ars(totalSofi)+'</span></div>';
-    h+='<div class="mes-row"><span class="mes-label">Le toca a Guille</span><span class="mes-val guille">'+ars(totalGuille)+'</span></div>';
-    var tarjetasConGasto=TARJETAS.filter(function(t){return porTarjeta[t]&&porTarjeta[t].total>0;});
-    if(tarjetasConGasto.length){
-      h+='<div style="margin-top:8px;padding-top:8px;border-top:0.5px solid #F0EDE6;">';
-      tarjetasConGasto.forEach(function(t){h+='<div class="mes-row"><span class="mes-label">'+t+'</span><span class="mes-val">'+ars(porTarjeta[t].total)+'</span></div>';});
-      h+='</div>';
-    }
-    h+='</div>';
-    if(Object.keys(deudasExternas).length){
-      var totalDeudas=Object.keys(deudasExternas).reduce(function(a,k){return a+deudasExternas[k];},0);
-      h+='<div class="deudas-card"><div class="deudas-titulo">💰 Te tienen que dar — '+mes.label+'</div>';
-      Object.keys(deudasExternas).forEach(function(p){h+='<div class="deuda-row"><span class="deuda-nombre">'+p+'</span><span class="deuda-monto">'+ars(deudasExternas[p])+'</span></div>';});
-      h+='<div class="deuda-row"><span class="deuda-nombre" style="font-weight:700;">Total</span><span class="deuda-monto">'+ars(totalDeudas)+'</span></div></div>';
-    }
-  });
-  document.getElementById('rcontent').innerHTML=h||'<div class="empty">Sin registros cargados</div>';
-}
-
-function delEntry(id){
-  if(!confirm('¿Eliminás este gasto?'))return;
-  post({action:'delete',id:id},function(ok){
-    if(ok){toast('Eliminado');setTimeout(function(){load(renderHist);},2000);}
-    else toast('Error al eliminar');
-  });
-}
-
-document.getElementById('hdate').textContent=new Date().toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'});
-document.getElementById('fecha').value=todayStr();
-load();
-</script>
-</body>
-</html>
+function setUsuario(u){
+  usuario=u;
+  localStorage.setItem('tarjetas_usuario',u);
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('main-app').style.display='flex';
+  var hu=document.getElementById('header-user');
+  hu.textContent='Hola, '+u+' \ud83d\udc4b';
+  hu.className='header-user '+u.toLowerCase();
+  initTarjetas();
+  
