@@ -433,95 +433,121 @@ function renderHist(){
   el.querySelectorAll('.del-btn').forEach(function(b){b.addEventListener('click',function(){delEntry(this.getAttribute('data-id'));});});
 }
 
-function calcTarjeta(list, tarjeta){
-  var sofi=0,guille=0,total=0;
-  list.filter(function(e){return e.tarjeta===tarjeta;}).forEach(function(e){
-    total+=e.importe;
-    if(e.tipoGasto==='suscripcion'&&e.subsKey&&SUBS[e.subsKey]){
-      var s=SUBS[e.subsKey],cuota=e.importe/s.total;
-      sofi+=cuota;if(s.personas.indexOf('Guille')>=0)guille+=cuota;
-    } else if(e.tipoGasto==='compartido'){
-      sofi+=e.montSofi;guille+=e.montGuille;
-    } else {
-      if(e.tarjeta.indexOf('Sofi')>=0)sofi+=e.importe;else guille+=e.importe;
-    }
-  });
-  return {total:total,sofi:sofi,guille:guille};
-}
-
 function renderRes(){
   if(!entries.length){document.getElementById('rcontent').innerHTML='<div class="empty">Sin registros cargados</div>';return;}
-  var now=new Date(),meses=[];
-  for(var i=0;i<4;i++){var d=new Date(now.getFullYear(),now.getMonth()+i,1);meses.push({key:d.getFullYear()+'-'+d.getMonth(),label:MESES[d.getMonth()]+' '+d.getFullYear()});}
+  var now=new Date();
+  var curKey=now.getFullYear()+'-'+now.getMonth();
+  var label=MESES[now.getMonth()]+' '+now.getFullYear();
+  var list=entries.filter(function(e){return mk(e.fecha)===curKey;});
+  if(!list.length){document.getElementById('rcontent').innerHTML='<div class="empty">Sin registros este mes</div>';return;}
+
   var h='';
-  meses.forEach(function(mes,idx){
-    var list=entries.filter(function(e){return mk(e.fecha)===mes.key;});
-    if(!list.length&&idx>0)return;
+  var tSofi=0,tGuille=0,tMes=0;
+  var deudasGlobales={};
 
-    // Calculos globales
-    var tSofi=0,tGuille=0,tMes=0,deudas={};
-    list.forEach(function(e){
-      tMes+=e.importe;
-      if(e.tipoGasto==='suscripcion'&&e.subsKey&&SUBS[e.subsKey]){
-        var s=SUBS[e.subsKey],cuota=e.importe/s.total;
-        tSofi+=cuota;if(s.personas.indexOf('Guille')>=0)tGuille+=cuota;
-        s.personas.forEach(function(p){if(p!=='Sofi'&&p!=='Guille')deudas[p]=(deudas[p]||0)+cuota;});
-      } else if(e.tipoGasto==='compartido'){tSofi+=e.montSofi;tGuille+=e.montGuille;}
-      else{if(e.tarjeta.indexOf('Sofi')>=0)tSofi+=e.importe;else tGuille+=e.importe;}
-    });
-
-    var esActual=idx===0;
-    h+='<div style="font-size:13px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.05em;margin:16px 0 8px;">'+(esActual?'Este mes - ':'')+mes.label+'</div>';
-
-    // Balance general
-    var balanceColor=tSofi>tGuille?'#C9406A':'#2563EB';
-    var balanceTexto=tSofi>tGuille?'Guille le debe pasar a Sofi':'Sofi le debe pasar a Guille';
-    var balanceMonto=Math.abs(tSofi-tGuille);
-    h+='<div class="mes-card">';
-    h+='<div class="mes-header"><span class="mes-titulo">Resumen general</span><span class="mes-total">'+ars(tMes)+'</span></div>';
-    h+='<div class="mes-row"><span class="mes-label">Total Sofi</span><span class="mes-val sofi">'+ars(tSofi)+'</span></div>';
-    h+='<div class="mes-row"><span class="mes-label">Total Guille</span><span class="mes-val guille">'+ars(tGuille)+'</span></div>';
-    if(balanceMonto>0){
-      h+='<div style="margin-top:10px;padding:10px 12px;background:#FFFBEB;border:1px solid #FDE68A;border-radius:10px;">';
-      h+='<div style="font-size:11px;font-weight:700;color:#92400E;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;">Balance entre los dos</div>';
-      h+='<div style="font-size:14px;font-weight:600;color:'+balanceColor+';">'+balanceTexto+' '+ars(balanceMonto)+'</div>';
-      h+='</div>';
-    } else {
-      h+='<div style="margin-top:10px;padding:10px 12px;background:#F0FDF4;border:1px solid #BBF7D0;border-radius:10px;font-size:14px;font-weight:600;color:#16A34A;">Estan al dia!</div>';
-    }
-    h+='</div>';
-
-    // Detalle por tarjeta
-    var tarsConGasto=TODAS.filter(function(t){
-      return list.some(function(e){return e.tarjeta===t;});
-    });
-    if(tarsConGasto.length){
-      h+='<div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.05em;margin:12px 0 8px;">Por tarjeta</div>';
-      tarsConGasto.forEach(function(t){
-        var r=calcTarjeta(list,t);
-        var esTarSofi=t.indexOf('Sofi')>=0;
-        h+='<div class="mes-card">';
-        h+='<div class="mes-header"><span class="mes-titulo">'+t+'</span><span class="mes-total">'+ars(r.total)+'</span></div>';
-        h+='<div class="mes-row"><span class="mes-label">Le corresponde a Sofi</span><span class="mes-val sofi">'+ars(r.sofi)+'</span></div>';
-        h+='<div class="mes-row"><span class="mes-label">Le corresponde a Guille</span><span class="mes-val guille">'+ars(r.guille)+'</span></div>';
-        if(esTarSofi&&r.guille>0){
-          h+='<div style="margin-top:8px;padding:8px 10px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:8px;font-size:13px;font-weight:600;color:#2563EB;">Guille le pasa a Sofi '+ars(r.guille)+'</div>';
-        } else if(!esTarSofi&&r.sofi>0){
-          h+='<div style="margin-top:8px;padding:8px 10px;background:#FDF0F4;border:1px solid #F0B8CB;border-radius:8px;font-size:13px;font-weight:600;color:#C9406A;">Sofi le pasa a Guille '+ars(r.sofi)+'</div>';
-        }
-        h+='</div>';
-      });
-    }
-
-    // Deudas externas (suscripciones)
-    if(Object.keys(deudas).length){
-      var td=Object.keys(deudas).reduce(function(a,k){return a+deudas[k];},0);
-      h+='<div class="deudas-card"><div class="deudas-titulo">A cobrar este mes</div>';
-      Object.keys(deudas).forEach(function(p){h+='<div class="deuda-row"><span class="deuda-nombre">'+p+'</span><span class="deuda-monto">'+ars(deudas[p])+'</span></div>';});
-      h+='<div class="deuda-row"><span class="deuda-nombre" style="font-weight:700;">Total</span><span class="deuda-monto">'+ars(td)+'</span></div></div>';
-    }
+  // Resumen general
+  list.forEach(function(e){
+    tMes+=e.importe;
+    if(e.tipoGasto==='suscripcion'&&e.subsKey&&SUBS[e.subsKey]){
+      var s=SUBS[e.subsKey],cuota=e.importe/s.total;
+      tSofi+=cuota;if(s.personas.indexOf('Guille')>=0)tGuille+=cuota;
+      s.personas.forEach(function(p){if(p!=='Sofi'&&p!=='Guille')deudasGlobales[p]=(deudasGlobales[p]||0)+cuota;});
+    } else if(e.tipoGasto==='compartido'){tSofi+=e.montSofi;tGuille+=e.montGuille;}
+    else{if(e.tarjeta.indexOf('Sofi')>=0)tSofi+=e.importe;else tGuille+=e.importe;}
   });
-  document.getElementById('rcontent').innerHTML=h||'<div class="empty">Sin registros</div>';
+
+  var balMonto=Math.abs(tSofi-tGuille);
+  var balTexto=tSofi>tGuille?'Guille le debe pasar a Sofi':'Sofi le debe pasar a Guille';
+  var balColor=tSofi>tGuille?'#2563EB':'#C9406A';
+
+  h+='<div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;">Este mes - '+label+'</div>';
+  h+='<div class="mes-card">';
+  h+='<div class="mes-header"><span class="mes-titulo">Total general</span><span class="mes-total">'+ars(tMes)+'</span></div>';
+  h+='<div class="mes-row"><span class="mes-label">Le toca a Sofi</span><span class="mes-val sofi">'+ars(tSofi)+'</span></div>';
+  h+='<div class="mes-row"><span class="mes-label">Le toca a Guille</span><span class="mes-val guille">'+ars(tGuille)+'</span></div>';
+  if(balMonto>1){
+    h+='<div style="margin-top:10px;padding:10px 12px;background:#FFFBEB;border:1px solid #FDE68A;border-radius:10px;">';
+    h+='<div style="font-size:11px;font-weight:700;color:#92400E;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:3px;">Balance</div>';
+    h+='<div style="font-size:14px;font-weight:700;color:'+balColor+';">'+balTexto+' '+ars(balMonto)+'</div>';
+    h+='</div>';
+  } else {
+    h+='<div style="margin-top:10px;padding:10px 12px;background:#F0FDF4;border:1px solid #BBF7D0;border-radius:10px;font-size:14px;font-weight:700;color:#16A34A;">Estan al dia!</div>';
+  }
+  h+='</div>';
+
+  // Detalle por tarjeta
+  var tarsConGasto=TODAS.filter(function(t){return list.some(function(e){return e.tarjeta===t;});});
+  if(tarsConGasto.length){
+    h+='<div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.05em;margin:14px 0 8px;">Detalle por tarjeta</div>';
+    tarsConGasto.forEach(function(tarjeta){
+      var gastosTar=list.filter(function(e){return e.tarjeta===tarjeta;});
+      var rSofi=0,rGuille=0,rTotal=0;
+      var deudasTar={};
+      gastosTar.forEach(function(e){
+        rTotal+=e.importe;
+        if(e.tipoGasto==='suscripcion'&&e.subsKey&&SUBS[e.subsKey]){
+          var s=SUBS[e.subsKey],cuota=e.importe/s.total;
+          rSofi+=cuota;if(s.personas.indexOf('Guille')>=0)rGuille+=cuota;
+          s.personas.forEach(function(p){if(p!=='Sofi'&&p!=='Guille')deudasTar[p]=(deudasTar[p]||0)+cuota;});
+        } else if(e.tipoGasto==='compartido'){rSofi+=e.montSofi;rGuille+=e.montGuille;}
+        else{if(tarjeta.indexOf('Sofi')>=0)rSofi+=e.importe;else rGuille+=e.importe;}
+      });
+      var esTarSofi=tarjeta.indexOf('Sofi')>=0;
+
+      h+='<div class="mes-card">';
+      h+='<div class="mes-header"><span class="mes-titulo">'+tarjeta+'</span><span class="mes-total">'+ars(rTotal)+'</span></div>';
+
+      // Lista de gastos
+      gastosTar.forEach(function(e){
+        var montoSofi=0,montoGuille=0;
+        if(e.tipoGasto==='suscripcion'&&e.subsKey&&SUBS[e.subsKey]){
+          var s=SUBS[e.subsKey],cuota=e.importe/s.total;
+          montoSofi=cuota;montoGuille=s.personas.indexOf('Guille')>=0?cuota:0;
+        } else if(e.tipoGasto==='compartido'){montoSofi=e.montSofi;montoGuille=e.montGuille;}
+        else{if(esTarSofi)montoSofi=e.importe;else montoGuille=e.importe;}
+        var det=e.detalle.length>28?e.detalle.substring(0,26)+'...':e.detalle;
+        h+='<div style="padding:6px 0;border-bottom:0.5px solid #F0EDE6;">';
+        h+='<div style="display:flex;justify-content:space-between;align-items:flex-start;">';
+        h+='<span style="font-size:13px;color:#1A1916;flex:1;margin-right:8px;">'+det+'</span>';
+        h+='<span style="font-size:13px;font-weight:600;color:#DC2626;white-space:nowrap;">'+ars(e.importe)+'</span>';
+        h+='</div>';
+        h+='<div style="display:flex;gap:10px;margin-top:2px;">';
+        if(montoSofi>0)h+='<span style="font-size:11px;color:#C9406A;">Sofi '+ars(montoSofi)+'</span>';
+        if(montoGuille>0)h+='<span style="font-size:11px;color:#2563EB;">Guille '+ars(montoGuille)+'</span>';
+        var extTar=e.tipoGasto==='suscripcion'&&e.subsKey&&SUBS[e.subsKey]?SUBS[e.subsKey].personas.filter(function(p){return p!=='Sofi'&&p!=='Guille';}):[];
+        extTar.forEach(function(p){h+='<span style="font-size:11px;color:#6D28D9;">'+p+' '+ars(e.importe/SUBS[e.subsKey].total)+'</span>';});
+        h+='</div></div>';
+      });
+
+      // Resumen de la tarjeta
+      h+='<div style="margin-top:10px;padding-top:10px;border-top:1px solid #E8E4DC;">';
+      h+='<div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;">Resumen</div>';
+      if(rSofi>0)h+='<div style="font-size:13px;padding:3px 0;color:#C9406A;font-weight:600;">Sofi: '+ars(rSofi)+'</div>';
+      if(rGuille>0)h+='<div style="font-size:13px;padding:3px 0;color:#2563EB;font-weight:600;">Guille: '+ars(rGuille)+'</div>';
+      Object.keys(deudasTar).forEach(function(p){h+='<div style="font-size:13px;padding:3px 0;color:#6D28D9;font-weight:600;">'+p+': '+ars(deudasTar[p])+'</div>';});
+
+      // Quién le pasa a quién
+      if(esTarSofi&&rGuille>0){
+        h+='<div style="margin-top:8px;padding:8px 10px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:8px;font-size:13px;font-weight:700;color:#2563EB;">Guille le pasa a Sofi '+ars(rGuille)+'</div>';
+      } else if(!esTarSofi&&rSofi>0){
+        h+='<div style="margin-top:8px;padding:8px 10px;background:#FDF0F4;border:1px solid #F0B8CB;border-radius:8px;font-size:13px;font-weight:700;color:#C9406A;">Sofi le pasa a Guille '+ars(rSofi)+'</div>';
+      }
+      Object.keys(deudasTar).forEach(function(p){
+        h+='<div style="margin-top:6px;padding:8px 10px;background:#F5F3FF;border:1px solid #DDD6FE;border-radius:8px;font-size:13px;font-weight:700;color:#6D28D9;">'+p+' le pasa a Sofi '+ars(deudasTar[p])+'</div>';
+      });
+      h+='</div></div>';
+    });
+  }
+
+  // Deudas externas globales
+  if(Object.keys(deudasGlobales).length){
+    var tdg=Object.keys(deudasGlobales).reduce(function(a,k){return a+deudasGlobales[k];},0);
+    h+='<div class="deudas-card"><div class="deudas-titulo">A cobrar este mes (suscripciones)</div>';
+    Object.keys(deudasGlobales).forEach(function(p){h+='<div class="deuda-row"><span class="deuda-nombre">'+p+'</span><span class="deuda-monto">'+ars(deudasGlobales[p])+'</span></div>';});
+    h+='<div class="deuda-row"><span class="deuda-nombre" style="font-weight:700;">Total</span><span class="deuda-monto">'+ars(tdg)+'</span></div></div>';
+  }
+
+  document.getElementById('rcontent').innerHTML=h;
 }
 
 function delEntry(id){
