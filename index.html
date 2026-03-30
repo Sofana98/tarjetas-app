@@ -265,9 +265,19 @@ function cambiarUsuario(){
   document.getElementById('main-app').style.display='none';
 }
 
-document.getElementById('btn-sofi').addEventListener('click',function(){setUsuario('Sofi');});
-document.getElementById('btn-guille').addEventListener('click',function(){setUsuario('Guille');});
-document.getElementById('btn-cambiar').addEventListener('click',cambiarUsuario);
+function initButtons(){
+  var bs=document.getElementById('btn-sofi');
+  var bg=document.getElementById('btn-guille');
+  var bc=document.getElementById('btn-cambiar');
+  if(bs)bs.addEventListener('click',function(){setUsuario('Sofi');});
+  if(bg)bg.addEventListener('click',function(){setUsuario('Guille');});
+  if(bc)bc.addEventListener('click',cambiarUsuario);
+}
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded',initButtons);
+} else {
+  initButtons();
+}
 
 function load(cb){
   sync('syncing');
@@ -541,4 +551,25 @@ function renderRes(){
       // Transferencias necesarias
       if(esTarSofi&&rGuille>0){
         h+='<div style="margin-top:8px;padding:8px 10px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:8px;font-size:13px;font-weight:700;color:#2563EB;">Guille le pasa a Sofi '+ars(rGuille)+'</div>';
-      } else if(!esTarS
+      } else if(!esTarSofi&&rSofi>0){
+        h+='<div style="margin-top:8px;padding:8px 10px;background:#FDF0F4;border:1px solid #F0B8CB;border-radius:8px;font-size:13px;font-weight:700;color:#C9406A;">Sofi le pasa a Guille '+ars(rSofi)+'</div>';
+      }
+      Object.keys(deudasTar).forEach(function(p){
+        h+='<div style="margin-top:6px;padding:8px 10px;background:#F5F3FF;border:1px solid #DDD6FE;border-radius:8px;font-size:13px;font-weight:700;color:#6D28D9;">'+p+' le pasa a Sofi '+ars(deudasTar[p])+'</div>';
+      });
+      h+='</div></div>';
+    });
+  }
+
+  document.getElementById('rcontent').innerHTML=h;
+}
+
+function delEntry(id){
+  if(!confirm('Eliminas este gasto?'))return;
+  post({action:'delete',id:id},function(ok){if(ok){toast('Eliminado');setTimeout(function(){load(renderHist);},2000);}else toast('Error al eliminar');});
+}
+
+try{var su=localStorage.getItem('tsg_user');if(su)setUsuario(su);}catch(e){}
+</script>
+</body>
+</html>
